@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Crows Character Sheet</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      background: #121212;
+      font-family: system-ui, sans-serif;
+      color: #e0e0e0;
+      padding: 1.5rem 1.5rem 4rem;
+    }
+
+    /* ── Header: identity floated left, advancement floated right, title truly centred ── */
+    header {
+      position: relative;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 1rem;
+      margin: 0 0 1.5rem;
+      min-height: 80px;
+    }
+
+    .header-title {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      text-align: center;
+      pointer-events: none; /* let clicks pass through to buttons */
+    }
+    .header-title h1 {
+      font-family: 'MedievalSharp', serif;
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 400;
+      color: #ffffff;
+      letter-spacing: 0.03em;
+      pointer-events: auto;
+    }
+    .divider {
+      height: 1px;
+      background: #2a2a2a;
+      margin: 0.5rem auto 0.6rem;
+      width: 200px;
+    }
+    .toolbar {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      pointer-events: auto;
+    }
+    .toolbar button {
+      background: #2a2a2a;
+      border: 1px solid #3a3a3a;
+      border-radius: 4px;
+      color: #ccc;
+      font-family: inherit;
+      font-size: 0.78rem;
+      letter-spacing: 0.05em;
+      padding: 0.4rem 0.85rem;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+    }
+    .toolbar button:hover { background: #333; border-color: #555; color: #fff; }
+
+    /* Identity block */
+    .header-identity {
+      background: #1e1e1e;
+      border: 1px solid #2e2e2e;
+      border-radius: 6px;
+      padding: 0.8rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      width: 360px;
+      flex-shrink: 0;
+    }
+    .header-identity .top-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+    }
+    .header-identity .field { margin-bottom: 0; }
+    .header-identity input,
+    .header-identity textarea { padding: 0.3rem 0.5rem; font-size: 0.9rem; }
+
+    /* Advancement card */
+    .advancement-card {
+      background: #1e1e1e;
+      border: 1px solid #2e2e2e;
+      border-radius: 6px;
+      padding: 0.8rem 1rem;
+      width: 300px;
+      flex-shrink: 0;
+    }
+    .advancement-card .card-title { margin-bottom: 0.65rem; padding-bottom: 0.35rem; }
+    .advancement-card .grid-2 { gap: 0.5rem; }
+    .advancement-card .field { margin-bottom: 0; }
+    .advancement-card input { padding: 0.3rem 0.5rem; font-size: 0.9rem; }
+
+    /* ── Full-width bands (attributes + traits sit outside the sidebar grid) ── */
+    .full-width { margin-bottom: 1.4rem; }
+
+    /* ── Three-column sidebar layout (no attributes/traits here) ── */
+    .page {
+      display: grid;
+      grid-template-columns: 200px 1fr 560px;
+      gap: 1.4rem;
+      align-items: stretch;
+    }
+
+    .sidebar-left  { display: flex; flex-direction: column; gap: 1.4rem; }
+    .sidebar-right { /* no sticky — expertise is long */ }
+    .main { display: flex; flex-direction: column; gap: 1.4rem; }
+
+    /* ── Card ── */
+    .card {
+      background: #1e1e1e;
+      border: 1px solid #2e2e2e;
+      border-radius: 6px;
+      padding: 1.2rem 1.4rem 1.4rem;
+    }
+    .card-title {
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #aaa;
+      text-align: center;
+      margin-bottom: 1rem;
+      padding-bottom: 0.45rem;
+      border-bottom: 1px solid #2e2e2e;
+    }
+
+    /* ── Fields ── */
+    .field { margin-bottom: 0.9rem; }
+    .field:last-child { margin-bottom: 0; }
+
+    label {
+      display: block;
+      font-size: 0.7rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #888;
+      margin-bottom: 0.28rem;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    textarea {
+      width: 100%;
+      background: #2a2a2a;
+      border: 1px solid #3a3a3a;
+      border-radius: 4px;
+      color: #e0e0e0;
+      font-family: inherit;
+      font-size: 1rem;
+      padding: 0.42rem 0.6rem;
+      outline: none;
+      transition: border-color 0.15s;
+      resize: none;
+    }
+    input:focus, textarea:focus { border-color: #666; }
+    input::placeholder, textarea::placeholder { color: #444; }
+    input[type="number"] { -moz-appearance: textfield; }
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button { display: none; }
+
+    /* ── Inner grids ── */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
+    .grid-2 .field { margin-bottom: 0; }
+    .span-2 { grid-column: 1 / -1; }
+
+    /* ── Attributes: 7 equal columns, stamina shares one slot via sub-grid ── */
+    .attr-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 0.65rem;
+      text-align: center;
+    }
+    .attr-grid .field { margin-bottom: 0; }
+    .attr-grid label { text-align: center; }
+    .attr-grid input { text-align: center; font-size: 1.15rem; font-weight: 600; width: 100%; }
+
+    /* Stamina takes exactly one column slot, split internally */
+    .stamina-wrap { display: flex; flex-direction: column; }
+    .stamina-wrap > label { margin-bottom: 0.28rem; }
+    .stamina-split { display: grid; grid-template-columns: 1fr 1fr; gap: 0.3rem; flex: 1; }
+    .stamina-split input { text-align: center; font-size: 1.15rem; font-weight: 600; }
+    .stamina-sublabel {
+      font-size: 0.6rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #666;
+      text-align: center;
+      margin-top: 0.2rem;
+    }
+
+    /* ── Traits (full width, stretches to match sidebar height) ── */
+    .traits-card {
+      display: flex;
+      flex-direction: column;
+    }
+    .traits-textarea {
+      flex: 1;
+      width: 100%;
+      min-height: 200px;
+      background: #2a2a2a;
+      border: 1px solid #3a3a3a;
+      border-radius: 4px;
+      color: #e0e0e0;
+      font-family: inherit;
+      font-size: 1rem;
+      padding: 0.6rem 0.7rem;
+      outline: none;
+      resize: vertical;
+      transition: border-color 0.15s;
+      line-height: 1.5;
+    }
+    .traits-textarea:focus { border-color: #666; }
+
+    /* Traits card fills the remaining height of .main */
+    .main .traits-card { flex: 1; }
+
+    /* ── Conditions ── */
+    .condition-grid { display: flex; flex-direction: column; gap: 0.55rem; }
+    .condition-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      user-select: none;
+    }
+    .condition-item input[type="checkbox"] {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 1.1rem; height: 1.1rem; min-width: 1.1rem;
+      border: 1px solid #444;
+      border-radius: 3px;
+      background: #2a2a2a;
+      cursor: pointer;
+      position: relative;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .condition-item input[type="checkbox"]:checked { background: #3a3a3a; border-color: #888; }
+    .condition-item input[type="checkbox"]:checked::after {
+      content: '✓';
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      color: #e0e0e0;
+      font-size: 0.75rem;
+      line-height: 1;
+    }
+    .condition-item span { font-size: 0.95rem; color: #ccc; }
+
+    /* ── Expertise two-column layout ── */
+    .expertise-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1.4rem; }
+
+    .expertise-col-header {
+      display: grid;
+      grid-template-columns: 1fr 2.8rem 2.8rem;
+      gap: 0.3rem;
+      font-size: 0.6rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #666;
+      border-bottom: 1px solid #2e2e2e;
+      padding-bottom: 0.3rem;
+      margin-bottom: 0.4rem;
+    }
+    .expertise-col-header span:not(:first-child) { text-align: center; }
+
+    .expertise-row {
+      display: grid;
+      grid-template-columns: 1fr 2.8rem 2.8rem;
+      gap: 0.3rem;
+      align-items: center;
+      margin-bottom: 0.28rem;
+    }
+    .expertise-row:last-child { margin-bottom: 0; }
+    .expertise-label { font-size: 0.85rem; color: #ccc; padding-left: 0.1rem; }
+    .expertise-row input { text-align: center; padding: 0.22rem 0.1rem; font-size: 0.85rem; }
+
+    .expertise-group { margin-bottom: 0.7rem; }
+    .expertise-group:last-child { margin-bottom: 0; }
+    .expertise-group-label {
+      font-size: 0.6rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #666;
+      margin-bottom: 0.3rem;
+      margin-top: 0.6rem;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 1000px) {
+      header { flex-wrap: wrap; }
+      .header-title { position: static; transform: none; order: -1; width: 100%; }
+      .page { grid-template-columns: 1fr; }
+      .sidebar-left, .sidebar-right { position: static; }
+      .header-identity, .advancement-card { width: 100%; }
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 3rem;
+      font-size: 0.65rem;
+      letter-spacing: 0.12em;
+      color: #333;
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Header ── -->
+<header>
+  <div class="header-identity">
+    <div class="top-row">
+      <div class="field">
+        <label for="char-name">Name</label>
+        <input type="text" id="char-name" />
+      </div>
+      <div class="field">
+        <label for="char-background">Background</label>
+        <input type="text" id="char-background" />
+      </div>
+    </div>
+    <div class="field">
+      <label for="char-feature">Feature</label>
+      <textarea id="char-feature" rows="2"></textarea>
+    </div>
+  </div>
+
+  <div class="header-title">
+    <h1>Crows</h1>
+    <div class="divider"></div>
+    <div class="toolbar">
+      <button id="btn-export">Export</button>
+      <button id="btn-load">Load</button>
+      <input type="file" id="file-input" accept=".json" style="display:none" />
+    </div>
+  </div>
+
+  <div class="advancement-card card">
+    <div class="card-title">Advancement</div>
+    <div class="grid-2">
+      <div class="field">
+        <label for="xp-unspent">Unspent XP</label>
+        <input type="number" id="xp-unspent" min="0" placeholder="0" />
+      </div>
+      <div class="field">
+        <label for="xp-total">Total XP</label>
+        <input type="number" id="xp-total" min="0" placeholder="0" />
+      </div>
+      <div class="field span-2">
+        <label for="xp-next">Next Advancement</label>
+        <input type="number" id="xp-next" min="1" placeholder="0" />
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ── Attributes: full width ── -->
+<div class="full-width">
+  <div class="card">
+    <div class="card-title">Attributes</div>
+    <div class="attr-grid">
+
+      <div class="field">
+        <label for="attr-str">Strength</label>
+        <input type="number" id="attr-str" min="1" max="20" placeholder="—" />
+      </div>
+
+      <div class="field">
+        <label for="attr-mind">Mind</label>
+        <input type="number" id="attr-mind" min="1" max="20" placeholder="—" />
+      </div>
+
+      <div class="field">
+        <label for="attr-agi">Agility</label>
+        <input type="number" id="attr-agi" min="1" max="20" placeholder="—" />
+      </div>
+
+      <div class="stamina-wrap field">
+        <label>Stamina</label>
+        <div class="stamina-split">
+          <div>
+            <input type="number" id="attr-sta-cur" min="0" placeholder="—" />
+            <div class="stamina-sublabel">Cur</div>
+          </div>
+          <div>
+            <input type="number" id="attr-sta-max" min="0" placeholder="—" />
+            <div class="stamina-sublabel">Max</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="attr-ad">AD</label>
+        <input type="number" id="attr-ad" min="0" placeholder="—" />
+      </div>
+
+      <div class="field">
+        <label for="attr-speed">Speed</label>
+        <input type="number" id="attr-speed" min="0" placeholder="—" />
+      </div>
+
+      <div class="field">
+        <label for="attr-shift">Shift</label>
+        <input type="number" id="attr-shift" min="0" placeholder="—" />
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ── Three-column layout: left sidebar | main | right sidebar ── -->
+<div class="page">
+
+  <!-- Left sidebar -->
+  <div class="sidebar-left">
+
+    <div class="card">
+      <div class="card-title">Conditions</div>
+      <div class="condition-grid">
+        <label class="condition-item"><input type="checkbox" id="cond-blessed" /><span>Blessed</span></label>
+        <label class="condition-item"><input type="checkbox" id="cond-grabbed" /><span>Grabbed</span></label>
+        <label class="condition-item"><input type="checkbox" id="cond-prone" /><span>Prone</span></label>
+        <label class="condition-item"><input type="checkbox" id="cond-unconscious" /><span>Unconscious</span></label>
+        <label class="condition-item"><input type="checkbox" id="cond-vulnerable" /><span>Vulnerable</span></label>
+        <label class="condition-item"><input type="checkbox" id="cond-weakened" /><span>Weakened</span></label>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">NPC Connection</div>
+      <div class="field">
+        <label for="npc-connection">Name / Description</label>
+        <textarea id="npc-connection" rows="3"></textarea>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Crypt Boon</div>
+      <div class="field">
+        <label for="crypt-boon">Boon</label>
+        <input type="text" id="crypt-boon" />
+      </div>
+      <div class="field" style="margin-top:0.6rem;">
+        <label class="condition-item">
+          <input type="checkbox" id="boon-expended" />
+          <span>Boon Expended</span>
+        </label>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Main: just Traits, fills height -->
+  <div class="main">
+    <div class="card traits-card">
+      <div class="card-title">Traits</div>
+      <textarea id="traits" class="traits-textarea"></textarea>
+    </div>
+  </div>
+
+  <!-- Right sidebar: Expertises -->
+  <div class="sidebar-right">
+    <div class="card">
+      <div class="card-title">Expertises</div>
+      <div class="expertise-columns">
+
+        <div>
+          <div class="expertise-col-header">
+            <span>Skill</span><span>Cur</span><span>Max</span>
+          </div>
+          <div class="expertise-group">
+            <div class="expertise-group-label">General</div>
+            <div class="expertise-row"><span class="expertise-label">Athletics</span><input type="number" id="exp-athletics-cur" min="0" placeholder="—" /><input type="number" id="exp-athletics-max" min="0" placeholder="—" /></div>
+            <div class="expertise-row"><span class="expertise-label">Endurance</span><input type="number" id="exp-endurance-cur" min="0" placeholder="—" /><input type="number" id="exp-endurance-max" min="0" placeholder="—" /></div>
+            <div class="expertise-row"><span class="expertise-label">Gymnastics</span><input type="number" id="exp-gymnastics-cur" min="0" placeholder="—" /><input type="number" id="exp-gymnastics-max" min="0" placeholder="—" /></div>
+            <div class="expertise-row"><span class="expertise-label">Handle Pet</span><input type="number" id="exp-handlepet-cur" min="0" placeholder="—" /><input type="number" id="exp-handlepet-max" min="0" placeholder="—" /></div>
+            <div class="expertise-row"><span class="expertise-label">Lift</span><input type="number" id="exp-lift-cur" min="0" placeholder="—" /><input type="number" id="exp-lift-max" min="0" placeholder="—" /></div>
+            <div class="expertise-row"><span class="expertise-label">Navigate</span><input type="number" id="exp-navigate-cur" min="0" placeholder="—" /><input type="number" id="exp-navigate-max" min="0" placeholder="—" /></div>
+            <div class="expertise-row"><span class="expertise-label">Pick Lock</span><input type="number" id="exp-picklock-cur" min="0" placeholder="—" /><input type="number" id="exp-picklock-max" min="0" placeholder="—" /></div>
+            <div class="expertise-row"><span class="expertise-label">Search</span><input type="number" id="exp-search-cur" min="0" placeholder="—" /><input type="number" id="exp-search-max" min="0" placeholder="—" /></div>
+            <div class="expertise-row"><span class="expertise-label">Stealth</span><input type="number" id="exp-stealth-cur" min="0" placeholder="—" /><input type="number" id="exp-stealth-max" min="0" placeholder="—" /></div>
+            <div class="expertise-row"><span class="expertise-label">Thievery</span><input type="number" id="exp-thievery-cur" min="0" placeholder="—" /><input type="number" id="exp-thievery-max" min="0" placeholder="—" /></div>
+            <div class="expertise-row"><span class="expertise-label">Traits</span><input type="number" id="exp-traits-cur" min="0" placeholder="—" /><input type="number" id="exp-traits-max" min="0" placeholder="—" /></div>
+          </div>
+          <div class="expertise-group">
+            <div class="expertise-group-label">Crafting</div>
+            <div class="expertise-row"><span class="expertise-label">Alchemy</span><input type="number" id="exp-alchemy-cur" min="0" placeholder="—" /><input type="number" id="exp-alchemy-max" min="0" placeholder="—" /></div>
+            <div class="expertise-row"><span class="expertise-label">Blacksmithing</span><input type="number" id="exp-blacksmithing-cur" min="0" placeholder="—" /><input type="number" id="exp-blacksmithing-max" min="0" placeholder="—" /></div>
+            <div class="expertise-row"><span class="expertise-label">Enchanting</span><input type="number" id="exp-enchanting-cur" min="0" placeholder="—" /><input type="number" id="exp-enchanting-max" min="0" placeholder="—" /></div>
+          </div>
+          <div class="expertise-group">
+            <div class="expertise-group-label">Lore</div>
+            <div class="expertise-row"><span class="expertise-label">Historical</span><input type="number" id="exp-historicallore-cur" min="0" placeholder="—" /><input type="number" id="exp-historicallore-max" min="0" placeholder="—" /></div>
+            <div class="expertise-row"><span class="expertise-label">Magic</span><input type="number" id="exp-magiclore-cur" min="0" placeholder="—" /><input type="number" id="exp-magiclore-max" min="0" placeholder="—" /></div>
+            <div class="expertise-row"><span class="expertise-label">Monster</span><input type="number" id="exp-monsterlore-cur" min="0" placeholder="—" /><input type="number" id="exp-monsterlore-max" min="0" placeholder="—" /></div>
+            <div class="expertise-row"><span class="expertise-label">Nature</span><input type="number" id="exp-naturelore-cur" min="0" placeholder="—" /><input type="number" id="exp-naturelore-max" min="0" placeholder="—" /></div>
+            <div class="expertise-row"><span class="expertise-label">Religious</span><input type="number" id="exp-religiouslore-cur" min="0" placeholder="—" /><input type="number" id="exp-religiouslore-max" min="0" placeholder="—" /></div>
+          </div>
+        </div>
+
+        <div>
+          <div class="expertise-col-header">
+            <span>Skill</span><span>Cur</span><span>Max</span>
+          </div>
+          <div class="expertise-group">
+            <div class="expertise-group-label">Spellcasting</div>
+            <div class="expertise-row"><span class="expertise-label">Alteration</span><input type="number" id="exp-alteration-cur" min="0" placeholder="—" /><input type="number" id="exp-alteration-max" min="0" placeholder="—" /></div>
+            <div class="expertise-row"><span class="expertise-label">Benefaction</span><input type="number" id="exp-benefaction-cur" min="0" placeholder="—" /><input type="number" id="exp-benefaction-max" min="0" placeholder="—" /></div>
+            <div class="expertise-row"><span class="expertise-label">Conjuration</span><input type="number" id="exp-conjuration-cur" min="0" placeholder="—" /><input type="number" id="exp-conjuration-max" min="0" placeholder="—" /></div>
+            <div class="expertise-row"><span class="expertise-label">Elemental</span><input type="number" id="exp-elemental-cur" min="0" placeholder="—" /><input type="number" id="exp-elemental-max" min="0" placeholder="—" /></div>
+            <div class="expertise-row"><span class="expertise-label">Illusion</span><input type="number" id="exp-illusion-cur" min="0" placeholder="—" /><input type="number" id="exp-illusion-max" min="0" placeholder="—" /></div>
+            <div class="expertise-row"><span class="expertise-label">Necromancy</span><input type="number" id="exp-necromancy-cur" min="0" placeholder="—" /><input type="number" id="exp-necromancy-max" min="0" placeholder="—" /></div>
+          </div>
+          <div class="expertise-group">
+            <div class="expertise-group-label">Weapon</div>
+            <div class="expertise-row"><span class="expertise-label">Bashing</span><input type="number" id="exp-bashing-cur" min="0" placeholder="—" /><input type="number" id="exp-bashing-max" min="0" placeholder="—" /></div>
+            <div class="expertise-row"><span class="expertise-label">Bow</span><input type="number" id="exp-bow-cur" min="0" placeholder="—" /><input type="number" id="exp-bow-max" min="0" placeholder="—" /></div>
+            <div class="expertise-row"><span class="expertise-label">Chopping</span><input type="number" id="exp-chopping-cur" min="0" placeholder="—" /><input type="number" id="exp-chopping-max" min="0" placeholder="—" /></div>
+            <div class="expertise-row"><span class="expertise-label">Cruelty</span><input type="number" id="exp-cruelty-cur" min="0" placeholder="—" /><input type="number" id="exp-cruelty-max" min="0" placeholder="—" /></div>
+            <div class="expertise-row"><span class="expertise-label">Slashing</span><input type="number" id="exp-slashing-cur" min="0" placeholder="—" /><input type="number" id="exp-slashing-max" min="0" placeholder="—" /></div>
+            <div class="expertise-row"><span class="expertise-label">Stabbing</span><input type="number" id="exp-stabbing-cur" min="0" placeholder="—" /><input type="number" id="exp-stabbing-max" min="0" placeholder="—" /></div>
+            <div class="expertise-row"><span class="expertise-label">Unarmed</span><input type="number" id="exp-unarmed-cur" min="0" placeholder="—" /><input type="number" id="exp-unarmed-max" min="0" placeholder="—" /></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div><!-- /page -->
+
+<footer>May your dice roll true</footer>
+
+<script>
+  function collectFields() {
+    const data = {};
+    document.querySelectorAll('input[id], textarea[id]').forEach(el => {
+      data[el.id] = el.type === 'checkbox' ? el.checked : el.value;
+    });
+    return data;
+  }
+
+  function applyFields(data) {
+    Object.entries(data).forEach(([id, value]) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      if (el.type === 'checkbox') el.checked = !!value;
+      else el.value = value;
+    });
+  }
+
+  document.getElementById('btn-export').addEventListener('click', () => {
+    const name = document.getElementById('char-name').value.trim() || 'character';
+    const blob = new Blob([JSON.stringify(collectFields(), null, 2)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = name + '.json';
+    a.click();
+    URL.revokeObjectURL(a.href);
+  });
+
+  document.getElementById('btn-load').addEventListener('click', () => {
+    document.getElementById('file-input').click();
+  });
+
+  document.getElementById('file-input').addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      try { applyFields(JSON.parse(ev.target.result)); }
+      catch { alert('Could not read file — make sure it is a valid Crows JSON export.'); }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  });
+</script>
+
+</body>
+</html>
