@@ -328,6 +328,13 @@
 
     /* ── Inventory ── */
     .inventory-section { margin-top: 1.4rem; }
+    .worn-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 0.6rem;
+      margin-bottom: 0.6rem;
+    }
+    .worn-grid .inv-slot textarea { height: 7rem; }
     .inventory-grid {
       display: grid;
       grid-template-columns: repeat(5, 1fr);
@@ -342,7 +349,7 @@
     }
     .inv-slot textarea {
       width: 100%;
-      height: 5.6rem;
+      height: 7rem;
       background: #2a2a2a;
       border: 1px solid #3a3a3a;
       border-radius: 4px;
@@ -477,9 +484,48 @@
   </div>
 </header>
 
+<!-- ── Inventory ── -->
+<div class="inventory-section" style="margin-bottom:1.4rem;margin-top:0;">
+  <div class="card">
+    <div class="card-title">Inventory</div>
+    <div class="worn-grid">
+      <div class="inv-slot"><span class="inv-slot-label">Head</span><textarea id="inv-head"></textarea></div>
+      <div class="inv-slot"><span class="inv-slot-label">Neck</span><textarea id="inv-neck"></textarea></div>
+      <div class="inv-slot"><span class="inv-slot-label">Waist</span><textarea id="inv-waist"></textarea></div>
+      <div class="inv-slot"><span class="inv-slot-label">Arms</span><textarea id="inv-arms"></textarea></div>
+      <div class="inv-slot"><span class="inv-slot-label">Finger</span><textarea id="inv-finger"></textarea></div>
+      <div class="inv-slot"><span class="inv-slot-label">Feet</span><textarea id="inv-feet"></textarea></div>
+    </div>
+    <div class="inventory-grid">
+      <div class="inv-slot"><span class="inv-slot-label">Hand 1</span><textarea id="inv-hand-1"></textarea></div>
+      <div class="inv-slot"><span class="inv-slot-label">Hand 2</span><textarea id="inv-hand-2"></textarea></div>
+      <div></div>
+      <div></div>
+      <div></div>
+
+      <div class="inv-slot"><span class="inv-slot-label">Belt 1</span><textarea id="inv-belt-1"></textarea></div>
+      <div class="inv-slot"><span class="inv-slot-label">Belt 2</span><textarea id="inv-belt-2"></textarea></div>
+      <div class="inv-slot"><span class="inv-slot-label">Belt 3</span><textarea id="inv-belt-3"></textarea></div>
+      <div class="inv-slot"><span class="inv-slot-label">Belt 4</span><textarea id="inv-belt-4"></textarea></div>
+      <div></div>
+
+      <div class="inv-slot"><span class="inv-slot-label">Backpack 1</span><textarea id="inv-bp-1"></textarea></div>
+      <div class="inv-slot"><span class="inv-slot-label">Backpack 2</span><textarea id="inv-bp-2"></textarea></div>
+      <div class="inv-slot"><span class="inv-slot-label">Backpack 3</span><textarea id="inv-bp-3"></textarea></div>
+      <div class="inv-slot"><span class="inv-slot-label">Backpack 4</span><textarea id="inv-bp-4"></textarea></div>
+      <div class="inv-slot"><span class="inv-slot-label">Backpack 5</span><textarea id="inv-bp-5"></textarea></div>
+
+      <div class="inv-slot"><span class="inv-slot-label">Backpack 6</span><textarea id="inv-bp-6"></textarea></div>
+      <div class="inv-slot"><span class="inv-slot-label">Backpack 7</span><textarea id="inv-bp-7"></textarea></div>
+      <div class="inv-slot"><span class="inv-slot-label">Backpack 8</span><textarea id="inv-bp-8"></textarea></div>
+      <div class="inv-slot"><span class="inv-slot-label">Backpack 9</span><textarea id="inv-bp-9"></textarea></div>
+      <div class="inv-slot"><span class="inv-slot-label">Backpack 10</span><textarea id="inv-bp-10"></textarea></div>
+    </div>
+  </div>
+</div>
+
 <!-- ── Three-column layout: left sidebar | main | right sidebar ── -->
 <div class="page">
-
   <!-- Left sidebar -->
   <div class="sidebar-left">
 
@@ -597,38 +643,6 @@
   </div>
 
 </div><!-- /page -->
-
-<!-- ── Inventory ── -->
-<div class="inventory-section">
-  <div class="card">
-    <div class="card-title">Inventory</div>
-    <div class="inventory-grid">
-      <div class="inv-slot"><span class="inv-slot-label">Hand 1</span><textarea id="inv-hand-1"></textarea></div>
-      <div class="inv-slot"><span class="inv-slot-label">Hand 2</span><textarea id="inv-hand-2"></textarea></div>
-      <div></div>
-      <div></div>
-      <div></div>
-
-      <div class="inv-slot"><span class="inv-slot-label">Belt 1</span><textarea id="inv-belt-1"></textarea></div>
-      <div class="inv-slot"><span class="inv-slot-label">Belt 2</span><textarea id="inv-belt-2"></textarea></div>
-      <div class="inv-slot"><span class="inv-slot-label">Belt 3</span><textarea id="inv-belt-3"></textarea></div>
-      <div class="inv-slot"><span class="inv-slot-label">Belt 4</span><textarea id="inv-belt-4"></textarea></div>
-      <div></div>
-
-      <div class="inv-slot"><span class="inv-slot-label">Backpack 1</span><textarea id="inv-bp-1"></textarea></div>
-      <div class="inv-slot"><span class="inv-slot-label">Backpack 2</span><textarea id="inv-bp-2"></textarea></div>
-      <div class="inv-slot"><span class="inv-slot-label">Backpack 3</span><textarea id="inv-bp-3"></textarea></div>
-      <div class="inv-slot"><span class="inv-slot-label">Backpack 4</span><textarea id="inv-bp-4"></textarea></div>
-      <div class="inv-slot"><span class="inv-slot-label">Backpack 5</span><textarea id="inv-bp-5"></textarea></div>
-
-      <div class="inv-slot"><span class="inv-slot-label">Backpack 6</span><textarea id="inv-bp-6"></textarea></div>
-      <div class="inv-slot"><span class="inv-slot-label">Backpack 7</span><textarea id="inv-bp-7"></textarea></div>
-      <div class="inv-slot"><span class="inv-slot-label">Backpack 8</span><textarea id="inv-bp-8"></textarea></div>
-      <div class="inv-slot"><span class="inv-slot-label">Backpack 9</span><textarea id="inv-bp-9"></textarea></div>
-      <div class="inv-slot"><span class="inv-slot-label">Backpack 10</span><textarea id="inv-bp-10"></textarea></div>
-    </div>
-  </div>
-</div>
 
 <footer>May your dice roll true</footer>
 
