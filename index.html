@@ -17,23 +17,20 @@
       padding: 1.5rem 1.5rem 4rem;
     }
 
-    /* ── Header: identity floated left, advancement floated right, title truly centred ── */
+    /* ── Header: 3-col grid [identity | title+attrs | advancement] ── */
     header {
-      position: relative;
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 1rem;
+      display: grid;
+      grid-template-columns: 300px 1fr 300px;
+      grid-template-rows: auto auto;
+      gap: 0.6rem 1rem;
+      align-items: end;
       margin: 0 0 1.5rem;
-      min-height: 80px;
     }
 
     .header-title {
-      position: absolute;
-      left: 50%;
-      transform: translateX(-50%);
+      grid-column: 2;
+      grid-row: 1;
       text-align: center;
-      pointer-events: none; /* let clicks pass through to buttons */
     }
     .header-title h1 {
       font-family: 'MedievalSharp', serif;
@@ -41,19 +38,17 @@
       font-weight: 400;
       color: #ffffff;
       letter-spacing: 0.03em;
-      pointer-events: auto;
     }
     .divider {
       height: 1px;
       background: #2a2a2a;
-      margin: 0.5rem auto 0.6rem;
+      margin: 0.4rem auto 0.5rem;
       width: 200px;
     }
     .toolbar {
       display: flex;
       justify-content: center;
       gap: 0.5rem;
-      pointer-events: auto;
     }
     .toolbar button {
       background: #2a2a2a;
@@ -68,9 +63,39 @@
       transition: background 0.15s, border-color 0.15s, color 0.15s;
     }
     .toolbar button:hover { background: #333; border-color: #555; color: #fff; }
+    .btn-rest {
+      background: #2a2a2a;
+      border: 1px solid #3a3a3a;
+      border-radius: 4px;
+      color: #ccc;
+      font-family: inherit;
+      font-size: 0.78rem;
+      letter-spacing: 0.05em;
+      padding: 0.4rem 0.85rem;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+      margin-top: 0.4rem;
+    }
+    .btn-rest:hover { background: #333; border-color: #555; color: #fff; }
 
-    /* Identity block */
+    /* Attributes in header — middle col, row 2, centred and content-width */
+    .header-attributes {
+      grid-column: 2;
+      grid-row: 2;
+      display: flex;
+      justify-content: center;
+      align-self: end;
+    }
+    .header-attributes .card {
+      padding: 0.6rem 0.9rem;
+      width: max-content;
+    }
+    .header-attributes .card-title { margin-bottom: 0.5rem; padding-bottom: 0.3rem; font-size: 0.65rem; }
+
+    /* Identity — col 1, spans both rows */
     .header-identity {
+      grid-column: 1;
+      grid-row: 1 / 3;
       background: #1e1e1e;
       border: 1px solid #2e2e2e;
       border-radius: 6px;
@@ -78,8 +103,7 @@
       display: flex;
       flex-direction: column;
       gap: 0.5rem;
-      width: 360px;
-      flex-shrink: 0;
+      align-self: stretch;
     }
     .header-identity .top-row {
       display: grid;
@@ -87,30 +111,33 @@
       gap: 0.5rem;
     }
     .header-identity .field { margin-bottom: 0; }
+    .header-identity .feature-field { flex: 1; display: flex; flex-direction: column; margin-bottom: 0; }
+    .header-identity .feature-field textarea { flex: 1; min-height: 0; }
     .header-identity input,
     .header-identity textarea { padding: 0.3rem 0.5rem; font-size: 0.9rem; }
 
-    /* Advancement card */
+    /* Advancement — col 3, spans both rows */
     .advancement-card {
+      grid-column: 3;
+      grid-row: 1 / 3;
+      align-self: stretch;
       background: #1e1e1e;
       border: 1px solid #2e2e2e;
       border-radius: 6px;
       padding: 0.8rem 1rem;
-      width: 300px;
-      flex-shrink: 0;
     }
     .advancement-card .card-title { margin-bottom: 0.65rem; padding-bottom: 0.35rem; }
     .advancement-card .grid-2 { gap: 0.5rem; }
     .advancement-card .field { margin-bottom: 0; }
     .advancement-card input { padding: 0.3rem 0.5rem; font-size: 0.9rem; }
 
-    /* ── Full-width bands (attributes + traits sit outside the sidebar grid) ── */
+    /* ── Full-width bands (traits sits outside the sidebar grid) ── */
     .full-width { margin-bottom: 1.4rem; }
 
     /* ── Three-column sidebar layout (no attributes/traits here) ── */
     .page {
       display: grid;
-      grid-template-columns: 200px 1fr 560px;
+      grid-template-columns: 200px 1fr 480px;
       gap: 1.4rem;
       align-items: stretch;
     }
@@ -180,19 +207,19 @@
     /* ── Attributes: 7 equal columns, stamina shares one slot via sub-grid ── */
     .attr-grid {
       display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 0.65rem;
+      grid-template-columns: repeat(8, 64px);
+      gap: 0.4rem;
       text-align: center;
     }
     .attr-grid .field { margin-bottom: 0; }
-    .attr-grid label { text-align: center; }
-    .attr-grid input { text-align: center; font-size: 1.15rem; font-weight: 600; width: 100%; }
+    .attr-grid label { text-align: center; font-size: 0.62rem; }
+    .attr-grid input { text-align: center; font-size: 0.95rem; font-weight: 600; width: 100%; padding: 0.3rem 0.2rem; }
 
     /* Stamina takes exactly one column slot, split internally */
     .stamina-wrap { display: flex; flex-direction: column; }
     .stamina-wrap > label { margin-bottom: 0.28rem; }
-    .stamina-split { display: grid; grid-template-columns: 1fr 1fr; gap: 0.3rem; flex: 1; }
-    .stamina-split input { text-align: center; font-size: 1.15rem; font-weight: 600; }
+    .stamina-split { display: grid; grid-template-columns: 1fr 1fr; gap: 0.25rem; flex: 1; }
+    .stamina-split input { text-align: center; font-size: 0.95rem; font-weight: 600; padding: 0.3rem 0.1rem; }
     .stamina-sublabel {
       font-size: 0.6rem;
       letter-spacing: 0.06em;
@@ -265,8 +292,8 @@
 
     .expertise-col-header {
       display: grid;
-      grid-template-columns: 1fr 2.8rem 2.8rem;
-      gap: 0.3rem;
+      grid-template-columns: 1fr 2.2rem 2.2rem;
+      gap: 0.15rem;
       font-size: 0.6rem;
       letter-spacing: 0.08em;
       text-transform: uppercase;
@@ -279,8 +306,8 @@
 
     .expertise-row {
       display: grid;
-      grid-template-columns: 1fr 2.8rem 2.8rem;
-      gap: 0.3rem;
+      grid-template-columns: 1fr 2.2rem 2.2rem;
+      gap: 0.15rem;
       align-items: center;
       margin-bottom: 0.28rem;
     }
@@ -299,7 +326,36 @@
       margin-top: 0.6rem;
     }
 
-    /* ── Responsive ── */
+    /* ── Inventory ── */
+    .inventory-section { margin-top: 1.4rem; }
+    .inventory-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0.6rem;
+    }
+    .inv-slot { display: flex; flex-direction: column; gap: 0.25rem; }
+    .inv-slot-label {
+      font-size: 0.65rem;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: #666;
+    }
+    .inv-slot textarea {
+      width: 100%;
+      height: 5.6rem;
+      background: #2a2a2a;
+      border: 1px solid #3a3a3a;
+      border-radius: 4px;
+      color: #e0e0e0;
+      font-family: inherit;
+      font-size: 0.9rem;
+      padding: 0.4rem 0.5rem;
+      outline: none;
+      resize: none;
+      transition: border-color 0.15s;
+      line-height: 1.4;
+    }
+    .inv-slot textarea:focus { border-color: #666; }
     @media (max-width: 1000px) {
       header { flex-wrap: wrap; }
       .header-title { position: static; transform: none; order: -1; width: 100%; }
@@ -322,7 +378,8 @@
 
 <!-- ── Header ── -->
 <header>
-  <div class="header-identity">
+  <div class="header-identity card">
+    <div class="card-title">Character</div>
     <div class="top-row">
       <div class="field">
         <label for="char-name">Name</label>
@@ -333,9 +390,9 @@
         <input type="text" id="char-background" />
       </div>
     </div>
-    <div class="field">
+    <div class="field feature-field">
       <label for="char-feature">Feature</label>
-      <textarea id="char-feature" rows="2"></textarea>
+      <textarea id="char-feature" rows="1"></textarea>
     </div>
   </div>
 
@@ -346,6 +403,58 @@
       <button id="btn-export">Export</button>
       <button id="btn-load">Load</button>
       <input type="file" id="file-input" accept=".json" style="display:none" />
+    </div>
+    <div class="toolbar" style="margin-top:0.4rem;">
+      <button class="btn-rest" id="btn-rest">Rest</button>
+    </div>
+  </div>
+
+  <div class="header-attributes">
+    <div class="card">
+      <div class="card-title">Attributes</div>
+      <div class="attr-grid">
+        <div class="field">
+          <label for="attr-str">Strength</label>
+          <input type="number" id="attr-str" min="1" max="20" placeholder="—" />
+        </div>
+        <div class="field">
+          <label for="attr-mind">Mind</label>
+          <input type="number" id="attr-mind" min="1" max="20" placeholder="—" />
+        </div>
+        <div class="field">
+          <label for="attr-agi">Agility</label>
+          <input type="number" id="attr-agi" min="1" max="20" placeholder="—" />
+        </div>
+        <div class="stamina-wrap field">
+          <label>Stamina</label>
+          <div class="stamina-split">
+            <div>
+              <input type="number" id="attr-sta-cur" min="0" placeholder="—" />
+              <div class="stamina-sublabel">Cur</div>
+            </div>
+            <div>
+              <input type="number" id="attr-sta-max" min="0" placeholder="—" />
+              <div class="stamina-sublabel">Max</div>
+            </div>
+          </div>
+        </div>
+        <div class="field">
+          <label for="attr-ad">AD</label>
+          <input type="number" id="attr-ad" min="0" placeholder="—" />
+        </div>
+        <div class="field">
+          <label for="attr-speed">Speed</label>
+          <input type="number" id="attr-speed" min="0" placeholder="—" />
+        </div>
+        <div class="field">
+          <label for="attr-shift">Shift</label>
+          <input type="number" id="attr-shift" min="0" placeholder="—" />
+        </div>
+        <div class="field">
+          <label for="attr-cruelty">Cruelty</label>
+          <input type="number" id="attr-cruelty" min="0" placeholder="—" />
+        </div>
+      </div>
     </div>
   </div>
 
@@ -367,60 +476,6 @@
     </div>
   </div>
 </header>
-
-<!-- ── Attributes: full width ── -->
-<div class="full-width">
-  <div class="card">
-    <div class="card-title">Attributes</div>
-    <div class="attr-grid">
-
-      <div class="field">
-        <label for="attr-str">Strength</label>
-        <input type="number" id="attr-str" min="1" max="20" placeholder="—" />
-      </div>
-
-      <div class="field">
-        <label for="attr-mind">Mind</label>
-        <input type="number" id="attr-mind" min="1" max="20" placeholder="—" />
-      </div>
-
-      <div class="field">
-        <label for="attr-agi">Agility</label>
-        <input type="number" id="attr-agi" min="1" max="20" placeholder="—" />
-      </div>
-
-      <div class="stamina-wrap field">
-        <label>Stamina</label>
-        <div class="stamina-split">
-          <div>
-            <input type="number" id="attr-sta-cur" min="0" placeholder="—" />
-            <div class="stamina-sublabel">Cur</div>
-          </div>
-          <div>
-            <input type="number" id="attr-sta-max" min="0" placeholder="—" />
-            <div class="stamina-sublabel">Max</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="field">
-        <label for="attr-ad">AD</label>
-        <input type="number" id="attr-ad" min="0" placeholder="—" />
-      </div>
-
-      <div class="field">
-        <label for="attr-speed">Speed</label>
-        <input type="number" id="attr-speed" min="0" placeholder="—" />
-      </div>
-
-      <div class="field">
-        <label for="attr-shift">Shift</label>
-        <input type="number" id="attr-shift" min="0" placeholder="—" />
-      </div>
-
-    </div>
-  </div>
-</div>
 
 <!-- ── Three-column layout: left sidebar | main | right sidebar ── -->
 <div class="page">
@@ -542,6 +597,38 @@
   </div>
 
 </div><!-- /page -->
+
+<!-- ── Inventory ── -->
+<div class="inventory-section">
+  <div class="card">
+    <div class="card-title">Inventory</div>
+    <div class="inventory-grid">
+      <div class="inv-slot"><span class="inv-slot-label">Hand 1</span><textarea id="inv-hand-1"></textarea></div>
+      <div class="inv-slot"><span class="inv-slot-label">Hand 2</span><textarea id="inv-hand-2"></textarea></div>
+      <div></div>
+      <div></div>
+      <div></div>
+
+      <div class="inv-slot"><span class="inv-slot-label">Belt 1</span><textarea id="inv-belt-1"></textarea></div>
+      <div class="inv-slot"><span class="inv-slot-label">Belt 2</span><textarea id="inv-belt-2"></textarea></div>
+      <div class="inv-slot"><span class="inv-slot-label">Belt 3</span><textarea id="inv-belt-3"></textarea></div>
+      <div class="inv-slot"><span class="inv-slot-label">Belt 4</span><textarea id="inv-belt-4"></textarea></div>
+      <div></div>
+
+      <div class="inv-slot"><span class="inv-slot-label">Backpack 1</span><textarea id="inv-bp-1"></textarea></div>
+      <div class="inv-slot"><span class="inv-slot-label">Backpack 2</span><textarea id="inv-bp-2"></textarea></div>
+      <div class="inv-slot"><span class="inv-slot-label">Backpack 3</span><textarea id="inv-bp-3"></textarea></div>
+      <div class="inv-slot"><span class="inv-slot-label">Backpack 4</span><textarea id="inv-bp-4"></textarea></div>
+      <div class="inv-slot"><span class="inv-slot-label">Backpack 5</span><textarea id="inv-bp-5"></textarea></div>
+
+      <div class="inv-slot"><span class="inv-slot-label">Backpack 6</span><textarea id="inv-bp-6"></textarea></div>
+      <div class="inv-slot"><span class="inv-slot-label">Backpack 7</span><textarea id="inv-bp-7"></textarea></div>
+      <div class="inv-slot"><span class="inv-slot-label">Backpack 8</span><textarea id="inv-bp-8"></textarea></div>
+      <div class="inv-slot"><span class="inv-slot-label">Backpack 9</span><textarea id="inv-bp-9"></textarea></div>
+      <div class="inv-slot"><span class="inv-slot-label">Backpack 10</span><textarea id="inv-bp-10"></textarea></div>
+    </div>
+  </div>
+</div>
 
 <footer>May your dice roll true</footer>
 
