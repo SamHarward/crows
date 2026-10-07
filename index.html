@@ -4,420 +4,84 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Crows Character Sheet</title>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap');
-
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      min-height: 100vh;
-      background: #121212;
-      font-family: system-ui, sans-serif;
-      color: #e0e0e0;
-      padding: 1.5rem 1.5rem 4rem;
-    }
-
-    /* ── Header: 3-col grid [identity | title+attrs | advancement] ── */
-    header {
-      display: grid;
-      grid-template-columns: 300px 1fr 300px;
-      grid-template-rows: auto auto;
-      gap: 0.6rem 1rem;
-      align-items: end;
-      margin: 0 0 1.5rem;
-    }
-
-    .header-title {
-      grid-column: 2;
-      grid-row: 1;
-      text-align: center;
-    }
-    .header-title h1 {
-      font-family: 'MedievalSharp', serif;
-      font-size: clamp(2rem, 5vw, 3.2rem);
-      font-weight: 400;
-      color: #ffffff;
-      letter-spacing: 0.03em;
-    }
-    .divider {
-      height: 1px;
-      background: #2a2a2a;
-      margin: 0.4rem auto 0.5rem;
-      width: 200px;
-    }
-    .toolbar {
-      display: flex;
-      justify-content: center;
-      gap: 0.5rem;
-    }
-    .toolbar button {
-      background: #2a2a2a;
-      border: 1px solid #3a3a3a;
-      border-radius: 4px;
-      color: #ccc;
-      font-family: inherit;
-      font-size: 0.78rem;
-      letter-spacing: 0.05em;
-      padding: 0.4rem 0.85rem;
-      cursor: pointer;
-      transition: background 0.15s, border-color 0.15s, color 0.15s;
-    }
-    .toolbar button:hover { background: #333; border-color: #555; color: #fff; }
-    .btn-rest {
-      background: #2a2a2a;
-      border: 1px solid #3a3a3a;
-      border-radius: 4px;
-      color: #ccc;
-      font-family: inherit;
-      font-size: 0.78rem;
-      letter-spacing: 0.05em;
-      padding: 0.4rem 0.85rem;
-      cursor: pointer;
-      transition: background 0.15s, border-color 0.15s, color 0.15s;
-      margin-top: 0.4rem;
-    }
-    .btn-rest:hover { background: #333; border-color: #555; color: #fff; }
-
-    /* Attributes in header — middle col, row 2, centred and content-width */
-    .header-attributes {
-      grid-column: 2;
-      grid-row: 2;
-      display: flex;
-      justify-content: center;
-      align-self: end;
-    }
-    .header-attributes .card {
-      padding: 0.6rem 0.9rem;
-      width: max-content;
-    }
-    .header-attributes .card-title { margin-bottom: 0.5rem; padding-bottom: 0.3rem; font-size: 0.65rem; }
-
-    /* Identity — col 1, spans both rows */
-    .header-identity {
-      grid-column: 1;
-      grid-row: 1 / 3;
-      background: #1e1e1e;
-      border: 1px solid #2e2e2e;
-      border-radius: 6px;
-      padding: 0.8rem 1rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-      align-self: stretch;
-    }
-    .header-identity .top-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0.5rem;
-    }
-    .header-identity .field { margin-bottom: 0; }
-    .header-identity .feature-field { flex: 1; display: flex; flex-direction: column; margin-bottom: 0; }
-    .header-identity .feature-field textarea { flex: 1; min-height: 0; }
-    .header-identity input,
-    .header-identity textarea { padding: 0.3rem 0.5rem; font-size: 0.9rem; }
-
-    /* Advancement — col 3, spans both rows */
-    .advancement-card {
-      grid-column: 3;
-      grid-row: 1 / 3;
-      align-self: stretch;
-      background: #1e1e1e;
-      border: 1px solid #2e2e2e;
-      border-radius: 6px;
-      padding: 0.8rem 1rem;
-    }
-    .advancement-card .card-title { margin-bottom: 0.65rem; padding-bottom: 0.35rem; }
-    .advancement-card .grid-2 { gap: 0.5rem; }
-    .advancement-card .field { margin-bottom: 0; }
-    .advancement-card input { padding: 0.3rem 0.5rem; font-size: 0.9rem; }
-
-    /* ── Full-width bands (traits sits outside the sidebar grid) ── */
-    .full-width { margin-bottom: 1.4rem; }
-
-    /* ── Three-column sidebar layout (no attributes/traits here) ── */
-    .page {
-      display: grid;
-      grid-template-columns: 200px 1fr 480px;
-      gap: 1.4rem;
-      align-items: stretch;
-    }
-
-    .sidebar-left  { display: flex; flex-direction: column; gap: 1.4rem; }
-    .sidebar-right { /* no sticky — expertise is long */ }
-    .main { display: flex; flex-direction: column; gap: 1.4rem; }
-
-    /* ── Card ── */
-    .card {
-      background: #1e1e1e;
-      border: 1px solid #2e2e2e;
-      border-radius: 6px;
-      padding: 1.2rem 1.4rem 1.4rem;
-    }
-    .card-title {
-      font-size: 0.75rem;
-      font-weight: 600;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: #aaa;
-      text-align: center;
-      margin-bottom: 1rem;
-      padding-bottom: 0.45rem;
-      border-bottom: 1px solid #2e2e2e;
-    }
-
-    /* ── Fields ── */
-    .field { margin-bottom: 0.9rem; }
-    .field:last-child { margin-bottom: 0; }
-
-    label {
-      display: block;
-      font-size: 0.7rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: #888;
-      margin-bottom: 0.28rem;
-    }
-
-    input[type="text"],
-    input[type="number"],
-    textarea {
-      width: 100%;
-      background: #2a2a2a;
-      border: 1px solid #3a3a3a;
-      border-radius: 4px;
-      color: #e0e0e0;
-      font-family: inherit;
-      font-size: 1rem;
-      padding: 0.42rem 0.6rem;
-      outline: none;
-      transition: border-color 0.15s;
-      resize: none;
-    }
-    input:focus, textarea:focus { border-color: #666; }
-    input::placeholder, textarea::placeholder { color: #444; }
-    input[type="number"] { -moz-appearance: textfield; }
-    input[type="number"]::-webkit-inner-spin-button,
-    input[type="number"]::-webkit-outer-spin-button { display: none; }
-
-    /* ── Inner grids ── */
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
-    .grid-2 .field { margin-bottom: 0; }
-    .span-2 { grid-column: 1 / -1; }
-
-    /* ── Attributes: 7 equal columns, stamina shares one slot via sub-grid ── */
-    .attr-grid {
-      display: grid;
-      grid-template-columns: repeat(8, 64px);
-      gap: 0.4rem;
-      text-align: center;
-    }
-    .attr-grid .field { margin-bottom: 0; }
-    .attr-grid label { text-align: center; font-size: 0.62rem; }
-    .attr-grid input { text-align: center; font-size: 0.95rem; font-weight: 600; width: 100%; padding: 0.3rem 0.2rem; }
-
-    /* Stamina takes exactly one column slot, split internally */
-    .stamina-wrap { display: flex; flex-direction: column; }
-    .stamina-wrap > label { margin-bottom: 0.28rem; }
-    .stamina-split { display: grid; grid-template-columns: 1fr 1fr; gap: 0.25rem; flex: 1; }
-    .stamina-split input { text-align: center; font-size: 0.95rem; font-weight: 600; padding: 0.3rem 0.1rem; }
-    .stamina-sublabel {
-      font-size: 0.6rem;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      color: #666;
-      text-align: center;
-      margin-top: 0.2rem;
-    }
-
-    /* ── Traits (full width, stretches to match sidebar height) ── */
-    .traits-card {
-      display: flex;
-      flex-direction: column;
-    }
-    .traits-textarea {
-      flex: 1;
-      width: 100%;
-      min-height: 200px;
-      background: #2a2a2a;
-      border: 1px solid #3a3a3a;
-      border-radius: 4px;
-      color: #e0e0e0;
-      font-family: inherit;
-      font-size: 1rem;
-      padding: 0.6rem 0.7rem;
-      outline: none;
-      resize: vertical;
-      transition: border-color 0.15s;
-      line-height: 1.5;
-    }
-    .traits-textarea:focus { border-color: #666; }
-
-    /* Traits card fills the remaining height of .main */
-    .main .traits-card { flex: 1; }
-
-    /* ── Conditions ── */
-    .condition-grid { display: flex; flex-direction: column; gap: 0.55rem; }
-    .condition-item {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      cursor: pointer;
-      user-select: none;
-    }
-    .condition-item input[type="checkbox"] {
-      appearance: none;
-      -webkit-appearance: none;
-      width: 1.1rem; height: 1.1rem; min-width: 1.1rem;
-      border: 1px solid #444;
-      border-radius: 3px;
-      background: #2a2a2a;
-      cursor: pointer;
-      position: relative;
-      transition: background 0.15s, border-color 0.15s;
-    }
-    .condition-item input[type="checkbox"]:checked { background: #3a3a3a; border-color: #888; }
-    .condition-item input[type="checkbox"]:checked::after {
-      content: '✓';
-      position: absolute;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      color: #e0e0e0;
-      font-size: 0.75rem;
-      line-height: 1;
-    }
-    .condition-item span { font-size: 0.95rem; color: #ccc; }
-
-    /* ── Expertise two-column layout ── */
-    .expertise-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1.4rem; }
-
-    .expertise-col-header {
-      display: grid;
-      grid-template-columns: 1fr 2.2rem 2.2rem;
-      gap: 0.15rem;
-      font-size: 0.6rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: #666;
-      border-bottom: 1px solid #2e2e2e;
-      padding-bottom: 0.3rem;
-      margin-bottom: 0.4rem;
-    }
-    .expertise-col-header span:not(:first-child) { text-align: center; }
-
-    .expertise-row {
-      display: grid;
-      grid-template-columns: 1fr 2.2rem 2.2rem;
-      gap: 0.15rem;
-      align-items: center;
-      margin-bottom: 0.28rem;
-    }
-    .expertise-row:last-child { margin-bottom: 0; }
-    .expertise-label { font-size: 0.85rem; color: #ccc; padding-left: 0.1rem; }
-    .expertise-row input { text-align: center; padding: 0.22rem 0.1rem; font-size: 0.85rem; }
-
-    .expertise-group { margin-bottom: 0.7rem; }
-    .expertise-group:last-child { margin-bottom: 0; }
-    .expertise-group-label {
-      font-size: 0.6rem;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: #666;
-      margin-bottom: 0.3rem;
-      margin-top: 0.6rem;
-    }
-
-    /* ── Inventory ── */
-    .inventory-section { margin-top: 1.4rem; }
-    .worn-grid {
-      display: grid;
-      grid-template-columns: repeat(6, 1fr);
-      gap: 0.6rem;
-      margin-bottom: 0.6rem;
-    }
-    .worn-grid .inv-slot textarea { height: 7rem; }
-    .inventory-grid {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 0.6rem;
-    }
-    .inv-slot { display: flex; flex-direction: column; gap: 0.25rem; }
-    .inv-slot-label {
-      font-size: 0.65rem;
-      letter-spacing: 0.07em;
-      text-transform: uppercase;
-      color: #666;
-    }
-    .inv-slot textarea {
-      width: 100%;
-      height: 7rem;
-      background: #2a2a2a;
-      border: 1px solid #3a3a3a;
-      border-radius: 4px;
-      color: #e0e0e0;
-      font-family: inherit;
-      font-size: 0.9rem;
-      padding: 0.4rem 0.5rem;
-      outline: none;
-      resize: none;
-      transition: border-color 0.15s;
-      line-height: 1.4;
-    }
-    .inv-slot textarea:focus { border-color: #666; }
-    @media (max-width: 1000px) {
-      header { flex-wrap: wrap; }
-      .header-title { position: static; transform: none; order: -1; width: 100%; }
-      .page { grid-template-columns: 1fr; }
-      .sidebar-left, .sidebar-right { position: static; }
-      .header-identity, .advancement-card { width: 100%; }
-    }
-
-    footer {
-      text-align: center;
-      margin-top: 3rem;
-      font-size: 0.65rem;
-      letter-spacing: 0.12em;
-      color: #333;
-      text-transform: uppercase;
-    }
-  </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="js/sheet.js" defer></script>
 </head>
 <body>
 
-<!-- ── Header ── -->
-<header>
-  <div class="header-identity card">
-    <div class="card-title">Character</div>
-    <div class="top-row">
-      <div class="field">
-        <label for="char-name">Name</label>
-        <input type="text" id="char-name" />
+<!-- ── Site header bar ── -->
+<div class="site-bar">
+  <div class="site-title">Crows</div>
+  <nav class="site-nav">
+    <div class="nav-group">
+      <select id="character-select" aria-label="Characters">
+        <option value="new">+ New Crow</option>
+      </select>
+      <button type="button" class="nav-btn btn-delete" id="btn-delete-crow" title="Delete this crow" aria-label="Delete this crow">&times;</button>
+    </div>
+    <div class="nav-group">
+      <select id="pet-select" aria-label="Pets">
+        <option value="new">+ New Pet</option>
+      </select>
+      <button type="button" class="nav-btn btn-delete" id="btn-delete-pet" title="Delete this pet" aria-label="Delete this pet">&times;</button>
+    </div>
+    <button type="button" class="nav-btn" id="btn-town">Town</button>
+  </nav>
+  <div class="site-actions">
+    <button id="btn-export">Export</button>
+    <button id="btn-load">Load</button>
+    <input type="file" id="file-input" accept=".json" style="display:none" />
+  </div>
+</div>
+
+<!-- ═══════════ Characters view ═══════════ -->
+<div id="view-characters" class="view">
+
+<!-- ── Sheet header: [character + advancement | attributes + conditions | traits] ── -->
+<header class="sheet-header">
+  <div class="card identity-card">
+    <div class="card-section identity-section">
+      <div class="card-title">Character</div>
+      <div class="grid-2">
+        <div class="field">
+          <label for="char-name">Name</label>
+          <input type="text" id="char-name" />
+        </div>
+        <div class="field">
+          <label for="char-background">Background</label>
+          <input type="text" id="char-background" />
+        </div>
       </div>
-      <div class="field">
-        <label for="char-background">Background</label>
-        <input type="text" id="char-background" />
+      <div class="field feature-field">
+        <label for="char-feature">Feature</label>
+        <textarea id="char-feature" rows="2"></textarea>
       </div>
     </div>
-    <div class="field feature-field">
-      <label for="char-feature">Feature</label>
-      <textarea id="char-feature" rows="1"></textarea>
+
+    <div class="card-section">
+      <div class="card-title">Advancement</div>
+      <div class="grid-3">
+        <div class="field">
+          <label for="xp-unspent">Unspent XP</label>
+          <input type="number" id="xp-unspent" min="0" placeholder="0" />
+        </div>
+        <div class="field">
+          <label for="xp-total">Total XP</label>
+          <input type="number" id="xp-total" min="0" placeholder="0" />
+        </div>
+        <div class="field">
+          <label for="xp-next">Next Advancement</label>
+          <input type="number" id="xp-next" min="1" placeholder="0" />
+        </div>
+      </div>
     </div>
   </div>
 
-  <div class="header-title">
-    <h1>Crows</h1>
-    <div class="divider"></div>
-    <div class="toolbar">
-      <button id="btn-export">Export</button>
-      <button id="btn-load">Load</button>
-      <input type="file" id="file-input" accept=".json" style="display:none" />
-    </div>
-    <div class="toolbar" style="margin-top:0.4rem;">
-      <button class="btn-rest" id="btn-rest">Rest</button>
-    </div>
-  </div>
-
-  <div class="header-attributes">
-    <div class="card">
+  <div class="card attributes-card">
+    <div class="card-section">
       <div class="card-title">Attributes</div>
       <div class="attr-grid">
         <div class="field">
@@ -463,73 +127,8 @@
         </div>
       </div>
     </div>
-  </div>
 
-  <div class="advancement-card card">
-    <div class="card-title">Advancement</div>
-    <div class="grid-2">
-      <div class="field">
-        <label for="xp-unspent">Unspent XP</label>
-        <input type="number" id="xp-unspent" min="0" placeholder="0" />
-      </div>
-      <div class="field">
-        <label for="xp-total">Total XP</label>
-        <input type="number" id="xp-total" min="0" placeholder="0" />
-      </div>
-      <div class="field span-2">
-        <label for="xp-next">Next Advancement</label>
-        <input type="number" id="xp-next" min="1" placeholder="0" />
-      </div>
-    </div>
-  </div>
-</header>
-
-<!-- ── Inventory ── -->
-<div class="inventory-section" style="margin-bottom:1.4rem;margin-top:0;">
-  <div class="card">
-    <div class="card-title">Inventory</div>
-    <div class="worn-grid">
-      <div class="inv-slot"><span class="inv-slot-label">Head</span><textarea id="inv-head"></textarea></div>
-      <div class="inv-slot"><span class="inv-slot-label">Neck</span><textarea id="inv-neck"></textarea></div>
-      <div class="inv-slot"><span class="inv-slot-label">Waist</span><textarea id="inv-waist"></textarea></div>
-      <div class="inv-slot"><span class="inv-slot-label">Arms</span><textarea id="inv-arms"></textarea></div>
-      <div class="inv-slot"><span class="inv-slot-label">Finger</span><textarea id="inv-finger"></textarea></div>
-      <div class="inv-slot"><span class="inv-slot-label">Feet</span><textarea id="inv-feet"></textarea></div>
-    </div>
-    <div class="inventory-grid">
-      <div class="inv-slot"><span class="inv-slot-label">Hand 1</span><textarea id="inv-hand-1"></textarea></div>
-      <div class="inv-slot"><span class="inv-slot-label">Hand 2</span><textarea id="inv-hand-2"></textarea></div>
-      <div></div>
-      <div></div>
-      <div></div>
-
-      <div class="inv-slot"><span class="inv-slot-label">Belt 1</span><textarea id="inv-belt-1"></textarea></div>
-      <div class="inv-slot"><span class="inv-slot-label">Belt 2</span><textarea id="inv-belt-2"></textarea></div>
-      <div class="inv-slot"><span class="inv-slot-label">Belt 3</span><textarea id="inv-belt-3"></textarea></div>
-      <div class="inv-slot"><span class="inv-slot-label">Belt 4</span><textarea id="inv-belt-4"></textarea></div>
-      <div></div>
-
-      <div class="inv-slot"><span class="inv-slot-label">Backpack 1</span><textarea id="inv-bp-1"></textarea></div>
-      <div class="inv-slot"><span class="inv-slot-label">Backpack 2</span><textarea id="inv-bp-2"></textarea></div>
-      <div class="inv-slot"><span class="inv-slot-label">Backpack 3</span><textarea id="inv-bp-3"></textarea></div>
-      <div class="inv-slot"><span class="inv-slot-label">Backpack 4</span><textarea id="inv-bp-4"></textarea></div>
-      <div class="inv-slot"><span class="inv-slot-label">Backpack 5</span><textarea id="inv-bp-5"></textarea></div>
-
-      <div class="inv-slot"><span class="inv-slot-label">Backpack 6</span><textarea id="inv-bp-6"></textarea></div>
-      <div class="inv-slot"><span class="inv-slot-label">Backpack 7</span><textarea id="inv-bp-7"></textarea></div>
-      <div class="inv-slot"><span class="inv-slot-label">Backpack 8</span><textarea id="inv-bp-8"></textarea></div>
-      <div class="inv-slot"><span class="inv-slot-label">Backpack 9</span><textarea id="inv-bp-9"></textarea></div>
-      <div class="inv-slot"><span class="inv-slot-label">Backpack 10</span><textarea id="inv-bp-10"></textarea></div>
-    </div>
-  </div>
-</div>
-
-<!-- ── Three-column layout: left sidebar | main | right sidebar ── -->
-<div class="page">
-  <!-- Left sidebar -->
-  <div class="sidebar-left">
-
-    <div class="card">
+    <div class="card-section">
       <div class="card-title">Conditions</div>
       <div class="condition-grid">
         <label class="condition-item"><input type="checkbox" id="cond-blessed" /><span>Blessed</span></label>
@@ -540,42 +139,57 @@
         <label class="condition-item"><input type="checkbox" id="cond-weakened" /><span>Weakened</span></label>
       </div>
     </div>
-
-    <div class="card">
-      <div class="card-title">NPC Connection</div>
-      <div class="field">
-        <label for="npc-connection">Name / Description</label>
-        <textarea id="npc-connection" rows="3"></textarea>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-title">Crypt Boon</div>
-      <div class="field">
-        <label for="crypt-boon">Boon</label>
-        <input type="text" id="crypt-boon" />
-      </div>
-      <div class="field" style="margin-top:0.6rem;">
-        <label class="condition-item">
-          <input type="checkbox" id="boon-expended" />
-          <span>Boon Expended</span>
-        </label>
-      </div>
-    </div>
-
   </div>
 
-  <!-- Main: just Traits, fills height -->
-  <div class="main">
-    <div class="card traits-card">
-      <div class="card-title">Traits</div>
-      <textarea id="traits" class="traits-textarea"></textarea>
+  <div class="card traits-card">
+    <div class="card-title">Traits</div>
+    <textarea id="traits" class="traits-textarea"></textarea>
+  </div>
+</header>
+
+<!-- ── Bottom row: [inventory | expertises + npc + boon] ── -->
+<div class="page">
+  <div class="inventory-section">
+    <div class="card">
+      <div class="card-title">Inventory</div>
+      <div class="worn-grid">
+        <div class="inv-slot"><span class="inv-slot-label">Head</span><textarea id="inv-head"></textarea></div>
+        <div class="inv-slot"><span class="inv-slot-label">Neck</span><textarea id="inv-neck"></textarea></div>
+        <div class="inv-slot"><span class="inv-slot-label">Waist</span><textarea id="inv-waist"></textarea></div>
+        <div class="inv-slot"><span class="inv-slot-label">Arms</span><textarea id="inv-arms"></textarea></div>
+        <div class="inv-slot"><span class="inv-slot-label">Finger</span><textarea id="inv-finger"></textarea></div>
+        <div class="inv-slot"><span class="inv-slot-label">Feet</span><textarea id="inv-feet"></textarea></div>
+      </div>
+      <div class="inventory-grid">
+        <div class="inv-slot"><span class="inv-slot-label">Hand 1</span><textarea id="inv-hand-1"></textarea></div>
+        <div class="inv-slot"><span class="inv-slot-label">Hand 2</span><textarea id="inv-hand-2"></textarea></div>
+        <div></div>
+        <div></div>
+        <div></div>
+
+        <div class="inv-slot"><span class="inv-slot-label">Belt 1</span><textarea id="inv-belt-1"></textarea></div>
+        <div class="inv-slot"><span class="inv-slot-label">Belt 2</span><textarea id="inv-belt-2"></textarea></div>
+        <div class="inv-slot"><span class="inv-slot-label">Belt 3</span><textarea id="inv-belt-3"></textarea></div>
+        <div class="inv-slot"><span class="inv-slot-label">Belt 4</span><textarea id="inv-belt-4"></textarea></div>
+        <div></div>
+
+        <div class="inv-slot"><span class="inv-slot-label">Backpack 1</span><textarea id="inv-bp-1"></textarea></div>
+        <div class="inv-slot"><span class="inv-slot-label">Backpack 2</span><textarea id="inv-bp-2"></textarea></div>
+        <div class="inv-slot"><span class="inv-slot-label">Backpack 3</span><textarea id="inv-bp-3"></textarea></div>
+        <div class="inv-slot"><span class="inv-slot-label">Backpack 4</span><textarea id="inv-bp-4"></textarea></div>
+        <div class="inv-slot"><span class="inv-slot-label">Backpack 5</span><textarea id="inv-bp-5"></textarea></div>
+
+        <div class="inv-slot"><span class="inv-slot-label">Backpack 6</span><textarea id="inv-bp-6"></textarea></div>
+        <div class="inv-slot"><span class="inv-slot-label">Backpack 7</span><textarea id="inv-bp-7"></textarea></div>
+        <div class="inv-slot"><span class="inv-slot-label">Backpack 8</span><textarea id="inv-bp-8"></textarea></div>
+        <div class="inv-slot"><span class="inv-slot-label">Backpack 9</span><textarea id="inv-bp-9"></textarea></div>
+        <div class="inv-slot"><span class="inv-slot-label">Backpack 10</span><textarea id="inv-bp-10"></textarea></div>
+      </div>
     </div>
   </div>
 
-  <!-- Right sidebar: Expertises -->
-  <div class="sidebar-right">
-    <div class="card">
+  <div class="card">
+    <div class="card-section">
       <div class="card-title">Expertises</div>
       <div class="expertise-columns">
 
@@ -640,56 +254,94 @@
 
       </div>
     </div>
+
+    <div class="card-section">
+      <div class="card-title">NPC Connection</div>
+      <div class="field">
+        <label for="npc-connection">Name / Description</label>
+        <textarea id="npc-connection" rows="3"></textarea>
+      </div>
+    </div>
+
+    <div class="card-section">
+      <div class="card-title">Crypt Boon</div>
+      <div class="field">
+        <label for="crypt-boon">Boon</label>
+        <input type="text" id="crypt-boon" />
+      </div>
+      <div class="field">
+        <label class="condition-item">
+          <input type="checkbox" id="boon-expended" />
+          <span>Boon Expended</span>
+        </label>
+      </div>
+    </div>
   </div>
 
 </div><!-- /page -->
 
-<footer>May your dice roll true</footer>
+</div><!-- /view-characters -->
 
-<script>
-  function collectFields() {
-    const data = {};
-    document.querySelectorAll('input[id], textarea[id]').forEach(el => {
-      data[el.id] = el.type === 'checkbox' ? el.checked : el.value;
-    });
-    return data;
-  }
+<!-- ═══════════ Pets view ═══════════ -->
+<div id="view-pets" class="view" hidden>
+  <div class="pet-layout">
 
-  function applyFields(data) {
-    Object.entries(data).forEach(([id, value]) => {
-      const el = document.getElementById(id);
-      if (!el) return;
-      if (el.type === 'checkbox') el.checked = !!value;
-      else el.value = value;
-    });
-  }
+    <div class="card pet-box">
+      <div class="card-title">Pet</div>
+      <div class="field">
+        <label for="pet-name">Name</label>
+        <input type="text" id="pet-name" />
+      </div>
+      <div class="field">
+        <label for="pet-size">Size</label>
+        <input type="text" id="pet-size" />
+      </div>
+      <div class="stamina-wrap field">
+        <label>Stamina</label>
+        <div class="stamina-split">
+          <div>
+            <input type="number" id="pet-sta-cur" min="0" placeholder="—" />
+            <div class="stamina-sublabel">Cur</div>
+          </div>
+          <div>
+            <input type="number" id="pet-sta-max" min="0" placeholder="—" />
+            <div class="stamina-sublabel">Max</div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-  document.getElementById('btn-export').addEventListener('click', () => {
-    const name = document.getElementById('char-name').value.trim() || 'character';
-    const blob = new Blob([JSON.stringify(collectFields(), null, 2)], { type: 'application/json' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = name + '.json';
-    a.click();
-    URL.revokeObjectURL(a.href);
-  });
+    <div class="card traits-card">
+      <div class="card-title">Traits</div>
+      <textarea id="pet-traits" class="traits-textarea"></textarea>
+    </div>
 
-  document.getElementById('btn-load').addEventListener('click', () => {
-    document.getElementById('file-input').click();
-  });
+    <div class="card pet-inventory">
+      <div class="card-title">Inventory</div>
+      <div class="worn-grid" style="margin-bottom:0;">
+        <div class="inv-slot"><span class="inv-slot-label">Slot 1</span><textarea id="pet-inv-1"></textarea></div>
+        <div class="inv-slot"><span class="inv-slot-label">Slot 2</span><textarea id="pet-inv-2"></textarea></div>
+        <div class="inv-slot"><span class="inv-slot-label">Slot 3</span><textarea id="pet-inv-3"></textarea></div>
+        <div class="inv-slot"><span class="inv-slot-label">Slot 4</span><textarea id="pet-inv-4"></textarea></div>
+        <div class="inv-slot"><span class="inv-slot-label">Slot 5</span><textarea id="pet-inv-5"></textarea></div>
+        <div class="inv-slot"><span class="inv-slot-label">Slot 6</span><textarea id="pet-inv-6"></textarea></div>
+      </div>
+    </div>
 
-  document.getElementById('file-input').addEventListener('change', e => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = ev => {
-      try { applyFields(JSON.parse(ev.target.result)); }
-      catch { alert('Could not read file — make sure it is a valid Crows JSON export.'); }
-    };
-    reader.readAsText(file);
-    e.target.value = '';
-  });
-</script>
+  </div>
+</div><!-- /view-pets -->
+
+<!-- ═══════════ Town view (one shared town) ═══════════ -->
+<div id="view-town" class="view" hidden>
+  <div class="card storage-card">
+    <div class="card-title">Storage</div>
+    <div id="storage-grid" class="worn-grid"></div>
+    <div class="storage-controls">
+      <button type="button" id="storage-remove" aria-label="Remove 6 slots">&minus;</button>
+      <button type="button" id="storage-add" aria-label="Add 6 slots">+</button>
+    </div>
+  </div>
+</div><!-- /view-town -->
 
 </body>
 </html>
