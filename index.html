@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="style.css" />
   <script src="js/fields.js" defer></script>
   <script src="js/sheet.js" defer></script>
+  <script src="js/roulette.js" defer></script>
 </head>
 <body>
 
@@ -307,6 +308,21 @@
     <div class="storage-controls">
       <button type="button" id="storage-remove" aria-label="Remove 6 slots">&minus;</button>
       <button type="button" id="storage-add" aria-label="Add 6 slots">+</button>
+    </div>
+  </div>
+
+  <!-- Just for fun: the wheel is drawn by js/roulette.js -->
+  <div class="card roulette-card">
+    <div class="card-title">Roulette</div>
+    <svg class="roulette" viewBox="-100 -100 200 200" role="img" aria-label="Roulette wheel">
+      <circle class="wheel-rim" r="98" />
+      <g id="roulette-wheel" class="wheel-spin"></g>
+      <g id="roulette-ball" class="ball-spin"><circle class="wheel-ball" cy="-66" r="4.5" /></g>
+      <path class="wheel-pointer" d="M-5,-100 L5,-100 L0,-90 Z" />
+    </svg>
+    <div class="roulette-controls">
+      <button type="button" id="roulette-spin">Spin</button>
+      <p id="roulette-result" class="roulette-result" aria-live="polite"></p>
     </div>
   </div>
 </div><!-- /view-town -->
