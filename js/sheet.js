@@ -1,6 +1,34 @@
 (function () {
   const $ = id => document.getElementById(id);
 
+  // ── Saved-data format ──
+  // Bump EXPORT_VERSION whenever the shape of an export changes.
+  const EXPORT_VERSION = 3;
+  // If a field's id ever changes, add 'old-id': 'new-id' here so saves made before the
+  // change still land in the right box. Example: { 'inv-bp-1': 'inv-backpack-1' }
+  const FIELD_RENAMES = {};
+
+  function upgradeEntry(entry) {
+    if (!entry || typeof entry !== 'object' || Array.isArray(entry)) return {};
+    Object.entries(FIELD_RENAMES).forEach(([oldId, newId]) => {
+      if (oldId in entry && !(newId in entry)) entry[newId] = entry[oldId];
+      delete entry[oldId];
+    });
+    return entry;
+  }
+  function upgradeStore(store) {
+    if (!store || typeof store !== 'object' || Array.isArray(store)) return {};
+    Object.keys(store).forEach(id => { store[id] = upgradeEntry(store[id]); });
+    return store;
+  }
+
+  // ── Browser storage, with a visible warning if saving stops working ──
+  const lsGet = k => { try { return localStorage.getItem(k); } catch { return null; } };
+  function lsSet(k, v) {
+    try { localStorage.setItem(k, v); return true; }
+    catch { $('save-warning').hidden = false; return false; }
+  }
+
   // One entry per kind of sheet. Each has its own dropdown, view, and saved list.
   const KINDS = {
     characters: {
@@ -15,12 +43,23 @@
       key: 'crows.pets', selKey: 'crows.selectedPet',
       deleteBtn: $('btn-delete-pet'), noun: 'pet', savedLabel: 'Saved pets',
       nameId: 'pet-name', newLabel: '+ New Pet', prefix: 'p',
-      store: {}, current: 'new'
+      store: {}, current: 'new',
+      layout: data => renderPetSlots(data['pet-slots'])
     }
   };
 
-  const lsGet = k => { try { return localStorage.getItem(k); } catch { return null; } };
-  const lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch {} };
+  // ── Pet inventory: one slot per point of the pet's Slots stat ──
+  // Lowering Slots only hides slots; their contents stay saved and come back if it's raised.
+  const MAX_PET_SLOTS = 30;
+  function renderPetSlots(value) {
+    const n = Math.min(Math.max(parseInt(value, 10) || 0, 0), MAX_PET_SLOTS);
+    const grid = $('pet-inv');
+    $('pet-inv-hint').hidden = n > 0;
+    if (grid.children.length === n) return false;
+    grid.innerHTML = '';
+    for (let i = 1; i <= n; i++) grid.append(window.CrowsFields.slot('pet-inv-' + i, 'Slot ' + i));
+    return true;
+  }
 
   // ── Town: a single shared page, not one per character ──
   const SLOT_STEP = 6;
@@ -29,15 +68,10 @@
   function renderStorage() {
     town.grid.innerHTML = '';
     for (let i = 0; i < town.slots; i++) {
-      const slot = document.createElement('div');
-      slot.className = 'inv-slot';
-      const name = document.createElement('span');
-      name.className = 'inv-slot-label';
-      name.textContent = 'Slot ' + (i + 1);
-      const box = document.createElement('textarea');
+      const slot = window.CrowsFields.slot('storage-slot-' + (i + 1), 'Slot ' + (i + 1));
+      const box = slot.querySelector('textarea');
       box.dataset.slot = i;
       box.value = town.storage[i] || '';
-      slot.append(name, box);
       town.grid.append(slot);
     }
     $('storage-remove').disabled = town.slots <= SLOT_STEP;
@@ -86,6 +120,11 @@
       else el.value = v == null ? '' : v;
     });
   }
+  // Fill one sheet: build any data-dependent fields first (pet slots), then set every value
+  function fill(k, data) {
+    if (k.layout) k.layout(data);
+    apply(k.view, data);
+  }
 
   function label(k, data) {
     return (data[k.nameId] || '').trim() || 'Unnamed';
@@ -111,11 +150,16 @@
     lsSet(k.selKey, k.current);
   }
   // First edit on "New …" creates a new entry; later edits update it.
+  // Values for fields no longer on the page are kept, so nothing is silently dropped.
   function save(k) {
-    if (k.current === 'new') k.current = k.prefix + Date.now();
-    k.store[k.current] = collect(k.view);
+    const isNew = k.current === 'new';
+    if (isNew) k.current = k.prefix + Date.now();
+    const before = k.store[k.current] || {};
+    const after = Object.assign({}, before, collect(k.view));
+    k.store[k.current] = after;
     persist(k);
-    render(k);
+    // The dropdown only needs rebuilding when an entry appears or its name changes
+    if (isNew || label(k, before) !== label(k, after)) render(k);
   }
 
   function showView(name) {
@@ -130,46 +174,61 @@
 
   $('btn-town').addEventListener('click', () => showView('town'));
 
-  // Dropdown behaviour: focusing a dropdown switches to its view; choosing loads that entry.
+  // Dropdowns: clicking or opening one switches to its view; choosing an entry loads it.
+  // (Not on focus, so tabbing past a dropdown doesn't change the page.)
+  const OPEN_KEYS = [' ', 'Enter', 'ArrowUp', 'ArrowDown'];
   Object.entries(KINDS).forEach(([name, k]) => {
-    k.select.addEventListener('focus', () => showView(name));
+    k.select.addEventListener('pointerdown', () => showView(name));
+    k.select.addEventListener('keydown', e => { if (OPEN_KEYS.includes(e.key)) showView(name); });
     k.select.addEventListener('change', () => {
       k.current = k.select.value;
-      apply(k.view, k.current === 'new' ? {} : (k.store[k.current] || {}));
+      fill(k, k.current === 'new' ? {} : (k.store[k.current] || {}));
       persist(k);
       render(k);
       showView(name);
     });
-  });
 
-  // Delete the selected entry, then fall back to a blank "New …" sheet
-  Object.entries(KINDS).forEach(([name, k]) => {
+    // Delete the selected entry, then fall back to a blank "New …" sheet
     k.deleteBtn.addEventListener('click', () => {
       if (k.current === 'new') return;
       const who = label(k, k.store[k.current] || {});
       if (!confirm('Delete ' + k.noun + ' "' + who + '"? This cannot be undone.')) return;
       delete k.store[k.current];
       k.current = 'new';
-      apply(k.view, {});
+      fill(k, {});
       persist(k);
       render(k);
       showView(name);
     });
   });
 
-  // Autosave whichever sheet was edited
-  ['input', 'change'].forEach(evt =>
-    document.addEventListener(evt, e => {
-      Object.values(KINDS).forEach(k => { if (k.view.contains(e.target)) save(k); });
-      if (town.view.contains(e.target) && e.target.matches('textarea')) saveTown();
-    })
-  );
+  // Every number on the sheets is a whole number; keep it inside the box's min/max once you finish typing
+  document.addEventListener('change', e => {
+    const el = e.target;
+    if (!el.matches('input[type="number"]') || el.value === '') return;
+    let v = Math.round(Number(el.value));
+    if (el.min !== '' && v < Number(el.min)) v = Number(el.min);
+    if (el.max !== '' && v > Number(el.max)) v = Number(el.max);
+    if (String(v) !== el.value) {
+      el.value = v;
+      el.dispatchEvent(new Event('input', { bubbles: true })); // save the corrected value
+    }
+  });
+
+  // Autosave whichever sheet was edited ('input' fires for text, numbers and checkboxes)
+  document.addEventListener('input', e => {
+    Object.values(KINDS).forEach(k => { if (k.view.contains(e.target)) save(k); });
+    if (e.target.id === 'pet-slots' && renderPetSlots(e.target.value)) {
+      apply($('pet-inv'), KINDS.pets.store[KINDS.pets.current] || {});
+    }
+    if (town.view.contains(e.target) && e.target.matches('textarea')) saveTown();
+  });
 
   // ── Export: every character, every pet, and the town in one file ──
   $('btn-export').addEventListener('click', () => {
     const payload = {
       format: 'crows-export',
-      version: 3,
+      version: EXPORT_VERSION,
       characters: KINDS.characters.store,
       pets: KINDS.pets.store,
       town: { slots: town.slots, storage: town.storage }
@@ -179,52 +238,69 @@
     a.href = URL.createObjectURL(blob);
     a.download = 'crows.json';
     a.click();
-    URL.revokeObjectURL(a.href);
+    // Give the browser time to start the download before the link is discarded
+    setTimeout(() => URL.revokeObjectURL(a.href), 10000);
   });
 
   // ── Load: full exports are merged in; old single-character files still work ──
+  const isPlainObject = v => !!v && typeof v === 'object' && !Array.isArray(v);
+  const characterFieldIds = new Set(
+    [...KINDS.characters.view.querySelectorAll('input[id], textarea[id]')].map(el => el.id)
+  );
+
   $('btn-load').addEventListener('click', () => $('file-input').click());
   $('file-input').addEventListener('change', e => {
     const file = e.target.files[0];
     if (!file) return;
     const reader = new FileReader();
     reader.onload = ev => {
-      try {
-        const data = JSON.parse(ev.target.result);
-        if (!data || typeof data !== 'object' || Array.isArray(data)) throw new Error('bad');
-        if (data.format === 'crows-export') {
-          Object.assign(KINDS.characters.store, data.characters || {});
-          Object.assign(KINDS.pets.store, data.pets || {});
-          Object.values(KINDS).forEach(k => {
-            persist(k);
-            render(k);
-            if (k.current !== 'new' && k.store[k.current]) apply(k.view, k.store[k.current]);
-          });
-          if (data.town) { loadTown(data.town); saveTown(); }
-          const nc = Object.keys(data.characters || {}).length;
-          const np = Object.keys(data.pets || {}).length;
-          alert('Loaded ' + nc + ' character(s) and ' + np + ' pet(s)' + (data.town ? ', plus the town.' : '.'));
-        } else {
-          // Older export: a single character sheet
-          showView('characters');
-          apply(KINDS.characters.view, data);
-          save(KINDS.characters);
+      let data;
+      try { data = JSON.parse(ev.target.result); } catch { data = null; }
+
+      if (isPlainObject(data) && data.format === 'crows-export') {
+        if ((data.characters != null && !isPlainObject(data.characters)) ||
+            (data.pets != null && !isPlainObject(data.pets))) {
+          alert('This Crows export looks damaged, so nothing was loaded.');
+          return;
         }
-      } catch {
-        alert('Could not read file — make sure it is a valid Crows JSON export.');
+        Object.assign(KINDS.characters.store, upgradeStore(data.characters || {}));
+        Object.assign(KINDS.pets.store, upgradeStore(data.pets || {}));
+        Object.values(KINDS).forEach(k => {
+          persist(k);
+          render(k);
+          if (k.current !== 'new' && k.store[k.current]) fill(k, k.store[k.current]);
+        });
+        if (data.town) { loadTown(data.town); saveTown(); }
+        const nc = Object.keys(data.characters || {}).length;
+        const np = Object.keys(data.pets || {}).length;
+        alert('Loaded ' + nc + ' character(s) and ' + np + ' pet(s)' + (data.town ? ', plus the town.' : '.'));
+        return;
       }
+
+      // Older export: a single character sheet. Only accept it if it has character fields.
+      const single = isPlainObject(data) ? upgradeEntry(data) : null;
+      if (single && Object.keys(single).some(id => characterFieldIds.has(id))) {
+        KINDS.characters.current = 'new';
+        showView('characters');
+        fill(KINDS.characters, single);
+        save(KINDS.characters);
+        return;
+      }
+
+      alert('Could not read file — make sure it is a Crows export (.json).');
     };
     reader.readAsText(file);
     e.target.value = '';
   });
 
   // ── Restore saved state on page load ──
+  if (lsSet('crows.check', '1')) { try { localStorage.removeItem('crows.check'); } catch {} }
   Object.values(KINDS).forEach(k => {
-    try { k.store = JSON.parse(lsGet(k.key)) || {}; } catch { k.store = {}; }
+    try { k.store = upgradeStore(JSON.parse(lsGet(k.key))); } catch { k.store = {}; }
     k.current = lsGet(k.selKey) || 'new';
     if (k.current !== 'new' && !k.store[k.current]) k.current = 'new';
     render(k);
-    if (k.current !== 'new') apply(k.view, k.store[k.current]);
+    fill(k, k.current === 'new' ? {} : k.store[k.current]);
   });
   try { loadTown(JSON.parse(lsGet('crows.town'))); } catch { loadTown(null); }
   const lastView = lsGet('crows.view');

@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" />
   <link rel="stylesheet" href="style.css" />
+  <script src="js/fields.js" defer></script>
   <script src="js/sheet.js" defer></script>
 </head>
 <body>
@@ -33,8 +34,13 @@
   <div class="site-actions">
     <button id="btn-export">Export</button>
     <button id="btn-load">Load</button>
-    <input type="file" id="file-input" accept=".json" style="display:none" />
+    <input type="file" id="file-input" accept=".json" hidden />
   </div>
+</div>
+
+<!-- Shown by sheet.js only if the browser refuses to save -->
+<div id="save-warning" class="save-warning" role="alert" hidden>
+  This browser isn't saving your changes (private window or storage blocked). Use Export to keep a copy before you close the page.
 </div>
 
 <!-- ═══════════ Characters view ═══════════ -->
@@ -96,16 +102,16 @@
           <label for="attr-agi">Agility</label>
           <input type="number" id="attr-agi" min="1" max="20" placeholder="—" />
         </div>
-        <div class="stamina-wrap field">
-          <label>Stamina</label>
+        <div class="stamina-wrap field" role="group" aria-labelledby="attr-sta-label">
+          <span class="label" id="attr-sta-label">Stamina</span>
           <div class="stamina-split">
             <div>
               <input type="number" id="attr-sta-cur" min="0" placeholder="—" />
-              <div class="stamina-sublabel">Cur</div>
+              <label class="stamina-sublabel" for="attr-sta-cur">Cur</label>
             </div>
             <div>
               <input type="number" id="attr-sta-max" min="0" placeholder="—" />
-              <div class="stamina-sublabel">Max</div>
+              <label class="stamina-sublabel" for="attr-sta-max">Max</label>
             </div>
           </div>
         </div>
@@ -143,7 +149,10 @@
 
   <div class="card traits-card">
     <div class="card-title">Traits</div>
-    <textarea id="traits" class="traits-textarea"></textarea>
+    <div class="traits-split">
+      <textarea id="traits" class="traits-textarea" aria-label="Traits 1"></textarea>
+      <textarea id="traits-2" class="traits-textarea" aria-label="Traits 2"></textarea>
+    </div>
   </div>
 </header>
 
@@ -152,107 +161,17 @@
   <div class="inventory-section">
     <div class="card">
       <div class="card-title">Inventory</div>
-      <div class="worn-grid">
-        <div class="inv-slot"><span class="inv-slot-label">Head</span><textarea id="inv-head"></textarea></div>
-        <div class="inv-slot"><span class="inv-slot-label">Neck</span><textarea id="inv-neck"></textarea></div>
-        <div class="inv-slot"><span class="inv-slot-label">Waist</span><textarea id="inv-waist"></textarea></div>
-        <div class="inv-slot"><span class="inv-slot-label">Arms</span><textarea id="inv-arms"></textarea></div>
-        <div class="inv-slot"><span class="inv-slot-label">Finger</span><textarea id="inv-finger"></textarea></div>
-        <div class="inv-slot"><span class="inv-slot-label">Feet</span><textarea id="inv-feet"></textarea></div>
-      </div>
-      <div class="inventory-grid">
-        <div class="inv-slot"><span class="inv-slot-label">Hand 1</span><textarea id="inv-hand-1"></textarea></div>
-        <div class="inv-slot"><span class="inv-slot-label">Hand 2</span><textarea id="inv-hand-2"></textarea></div>
-        <div></div>
-        <div></div>
-        <div></div>
-
-        <div class="inv-slot"><span class="inv-slot-label">Belt 1</span><textarea id="inv-belt-1"></textarea></div>
-        <div class="inv-slot"><span class="inv-slot-label">Belt 2</span><textarea id="inv-belt-2"></textarea></div>
-        <div class="inv-slot"><span class="inv-slot-label">Belt 3</span><textarea id="inv-belt-3"></textarea></div>
-        <div class="inv-slot"><span class="inv-slot-label">Belt 4</span><textarea id="inv-belt-4"></textarea></div>
-        <div></div>
-
-        <div class="inv-slot"><span class="inv-slot-label">Backpack 1</span><textarea id="inv-bp-1"></textarea></div>
-        <div class="inv-slot"><span class="inv-slot-label">Backpack 2</span><textarea id="inv-bp-2"></textarea></div>
-        <div class="inv-slot"><span class="inv-slot-label">Backpack 3</span><textarea id="inv-bp-3"></textarea></div>
-        <div class="inv-slot"><span class="inv-slot-label">Backpack 4</span><textarea id="inv-bp-4"></textarea></div>
-        <div class="inv-slot"><span class="inv-slot-label">Backpack 5</span><textarea id="inv-bp-5"></textarea></div>
-
-        <div class="inv-slot"><span class="inv-slot-label">Backpack 6</span><textarea id="inv-bp-6"></textarea></div>
-        <div class="inv-slot"><span class="inv-slot-label">Backpack 7</span><textarea id="inv-bp-7"></textarea></div>
-        <div class="inv-slot"><span class="inv-slot-label">Backpack 8</span><textarea id="inv-bp-8"></textarea></div>
-        <div class="inv-slot"><span class="inv-slot-label">Backpack 9</span><textarea id="inv-bp-9"></textarea></div>
-        <div class="inv-slot"><span class="inv-slot-label">Backpack 10</span><textarea id="inv-bp-10"></textarea></div>
-      </div>
+      <!-- Slots are built by js/fields.js -->
+      <div class="worn-grid" id="inv-worn"></div>
+      <div class="inventory-grid" id="inv-pack"></div>
     </div>
   </div>
 
   <div class="card">
     <div class="card-section">
       <div class="card-title">Expertises</div>
-      <div class="expertise-columns">
-
-        <div>
-          <div class="expertise-col-header">
-            <span>Skill</span><span>Cur</span><span>Max</span>
-          </div>
-          <div class="expertise-group">
-            <div class="expertise-group-label">General</div>
-            <div class="expertise-row"><span class="expertise-label">Athletics</span><input type="number" id="exp-athletics-cur" min="0" placeholder="—" /><input type="number" id="exp-athletics-max" min="0" placeholder="—" /></div>
-            <div class="expertise-row"><span class="expertise-label">Endurance</span><input type="number" id="exp-endurance-cur" min="0" placeholder="—" /><input type="number" id="exp-endurance-max" min="0" placeholder="—" /></div>
-            <div class="expertise-row"><span class="expertise-label">Gymnastics</span><input type="number" id="exp-gymnastics-cur" min="0" placeholder="—" /><input type="number" id="exp-gymnastics-max" min="0" placeholder="—" /></div>
-            <div class="expertise-row"><span class="expertise-label">Handle Pet</span><input type="number" id="exp-handlepet-cur" min="0" placeholder="—" /><input type="number" id="exp-handlepet-max" min="0" placeholder="—" /></div>
-            <div class="expertise-row"><span class="expertise-label">Lift</span><input type="number" id="exp-lift-cur" min="0" placeholder="—" /><input type="number" id="exp-lift-max" min="0" placeholder="—" /></div>
-            <div class="expertise-row"><span class="expertise-label">Navigate</span><input type="number" id="exp-navigate-cur" min="0" placeholder="—" /><input type="number" id="exp-navigate-max" min="0" placeholder="—" /></div>
-            <div class="expertise-row"><span class="expertise-label">Pick Lock</span><input type="number" id="exp-picklock-cur" min="0" placeholder="—" /><input type="number" id="exp-picklock-max" min="0" placeholder="—" /></div>
-            <div class="expertise-row"><span class="expertise-label">Search</span><input type="number" id="exp-search-cur" min="0" placeholder="—" /><input type="number" id="exp-search-max" min="0" placeholder="—" /></div>
-            <div class="expertise-row"><span class="expertise-label">Stealth</span><input type="number" id="exp-stealth-cur" min="0" placeholder="—" /><input type="number" id="exp-stealth-max" min="0" placeholder="—" /></div>
-            <div class="expertise-row"><span class="expertise-label">Thievery</span><input type="number" id="exp-thievery-cur" min="0" placeholder="—" /><input type="number" id="exp-thievery-max" min="0" placeholder="—" /></div>
-            <div class="expertise-row"><span class="expertise-label">Traits</span><input type="number" id="exp-traits-cur" min="0" placeholder="—" /><input type="number" id="exp-traits-max" min="0" placeholder="—" /></div>
-          </div>
-          <div class="expertise-group">
-            <div class="expertise-group-label">Crafting</div>
-            <div class="expertise-row"><span class="expertise-label">Alchemy</span><input type="number" id="exp-alchemy-cur" min="0" placeholder="—" /><input type="number" id="exp-alchemy-max" min="0" placeholder="—" /></div>
-            <div class="expertise-row"><span class="expertise-label">Blacksmithing</span><input type="number" id="exp-blacksmithing-cur" min="0" placeholder="—" /><input type="number" id="exp-blacksmithing-max" min="0" placeholder="—" /></div>
-            <div class="expertise-row"><span class="expertise-label">Enchanting</span><input type="number" id="exp-enchanting-cur" min="0" placeholder="—" /><input type="number" id="exp-enchanting-max" min="0" placeholder="—" /></div>
-          </div>
-          <div class="expertise-group">
-            <div class="expertise-group-label">Lore</div>
-            <div class="expertise-row"><span class="expertise-label">Historical</span><input type="number" id="exp-historicallore-cur" min="0" placeholder="—" /><input type="number" id="exp-historicallore-max" min="0" placeholder="—" /></div>
-            <div class="expertise-row"><span class="expertise-label">Magic</span><input type="number" id="exp-magiclore-cur" min="0" placeholder="—" /><input type="number" id="exp-magiclore-max" min="0" placeholder="—" /></div>
-            <div class="expertise-row"><span class="expertise-label">Monster</span><input type="number" id="exp-monsterlore-cur" min="0" placeholder="—" /><input type="number" id="exp-monsterlore-max" min="0" placeholder="—" /></div>
-            <div class="expertise-row"><span class="expertise-label">Nature</span><input type="number" id="exp-naturelore-cur" min="0" placeholder="—" /><input type="number" id="exp-naturelore-max" min="0" placeholder="—" /></div>
-            <div class="expertise-row"><span class="expertise-label">Religious</span><input type="number" id="exp-religiouslore-cur" min="0" placeholder="—" /><input type="number" id="exp-religiouslore-max" min="0" placeholder="—" /></div>
-          </div>
-        </div>
-
-        <div>
-          <div class="expertise-col-header">
-            <span>Skill</span><span>Cur</span><span>Max</span>
-          </div>
-          <div class="expertise-group">
-            <div class="expertise-group-label">Spellcasting</div>
-            <div class="expertise-row"><span class="expertise-label">Alteration</span><input type="number" id="exp-alteration-cur" min="0" placeholder="—" /><input type="number" id="exp-alteration-max" min="0" placeholder="—" /></div>
-            <div class="expertise-row"><span class="expertise-label">Benefaction</span><input type="number" id="exp-benefaction-cur" min="0" placeholder="—" /><input type="number" id="exp-benefaction-max" min="0" placeholder="—" /></div>
-            <div class="expertise-row"><span class="expertise-label">Conjuration</span><input type="number" id="exp-conjuration-cur" min="0" placeholder="—" /><input type="number" id="exp-conjuration-max" min="0" placeholder="—" /></div>
-            <div class="expertise-row"><span class="expertise-label">Elemental</span><input type="number" id="exp-elemental-cur" min="0" placeholder="—" /><input type="number" id="exp-elemental-max" min="0" placeholder="—" /></div>
-            <div class="expertise-row"><span class="expertise-label">Illusion</span><input type="number" id="exp-illusion-cur" min="0" placeholder="—" /><input type="number" id="exp-illusion-max" min="0" placeholder="—" /></div>
-            <div class="expertise-row"><span class="expertise-label">Necromancy</span><input type="number" id="exp-necromancy-cur" min="0" placeholder="—" /><input type="number" id="exp-necromancy-max" min="0" placeholder="—" /></div>
-          </div>
-          <div class="expertise-group">
-            <div class="expertise-group-label">Weapon</div>
-            <div class="expertise-row"><span class="expertise-label">Bashing</span><input type="number" id="exp-bashing-cur" min="0" placeholder="—" /><input type="number" id="exp-bashing-max" min="0" placeholder="—" /></div>
-            <div class="expertise-row"><span class="expertise-label">Bow</span><input type="number" id="exp-bow-cur" min="0" placeholder="—" /><input type="number" id="exp-bow-max" min="0" placeholder="—" /></div>
-            <div class="expertise-row"><span class="expertise-label">Chopping</span><input type="number" id="exp-chopping-cur" min="0" placeholder="—" /><input type="number" id="exp-chopping-max" min="0" placeholder="—" /></div>
-            <div class="expertise-row"><span class="expertise-label">Cruelty</span><input type="number" id="exp-cruelty-cur" min="0" placeholder="—" /><input type="number" id="exp-cruelty-max" min="0" placeholder="—" /></div>
-            <div class="expertise-row"><span class="expertise-label">Slashing</span><input type="number" id="exp-slashing-cur" min="0" placeholder="—" /><input type="number" id="exp-slashing-max" min="0" placeholder="—" /></div>
-            <div class="expertise-row"><span class="expertise-label">Stabbing</span><input type="number" id="exp-stabbing-cur" min="0" placeholder="—" /><input type="number" id="exp-stabbing-max" min="0" placeholder="—" /></div>
-            <div class="expertise-row"><span class="expertise-label">Unarmed</span><input type="number" id="exp-unarmed-cur" min="0" placeholder="—" /><input type="number" id="exp-unarmed-max" min="0" placeholder="—" /></div>
-          </div>
-        </div>
-
-      </div>
+      <!-- Rows are built by js/fields.js -->
+      <div class="expertise-columns" id="expertise-columns"></div>
     </div>
 
     <div class="card-section">
@@ -284,51 +203,100 @@
 
 <!-- ═══════════ Pets view ═══════════ -->
 <div id="view-pets" class="view" hidden>
-  <div class="pet-layout">
 
-    <div class="card pet-box">
+<!-- ── Pet header: [pet | stats | traits | attacks] ── -->
+<header class="sheet-header">
+  <div class="card identity-card">
+    <div class="card-section identity-section">
       <div class="card-title">Pet</div>
-      <div class="field">
-        <label for="pet-name">Name</label>
-        <input type="text" id="pet-name" />
+      <div class="grid-2">
+        <div class="field">
+          <label for="pet-name">Name</label>
+          <input type="text" id="pet-name" />
+        </div>
+        <div class="field">
+          <label for="pet-size">Size</label>
+          <input type="text" id="pet-size" />
+        </div>
       </div>
       <div class="field">
-        <label for="pet-size">Size</label>
-        <input type="text" id="pet-size" />
+        <label for="pet-type">Type</label>
+        <input type="text" id="pet-type" />
       </div>
-      <div class="stamina-wrap field">
-        <label>Stamina</label>
-        <div class="stamina-split">
-          <div>
-            <input type="number" id="pet-sta-cur" min="0" placeholder="—" />
-            <div class="stamina-sublabel">Cur</div>
+    </div>
+  </div>
+
+  <div class="card attributes-card">
+    <div class="card-section">
+      <div class="card-title">Stats</div>
+      <div class="attr-grid pet-stats">
+        <div class="stat-row">
+          <div class="field">
+            <label for="pet-power">Power</label>
+            <input type="number" id="pet-power" min="0" placeholder="—" />
           </div>
-          <div>
-            <input type="number" id="pet-sta-max" min="0" placeholder="—" />
-            <div class="stamina-sublabel">Max</div>
+          <div class="stamina-wrap field" role="group" aria-labelledby="pet-sta-label">
+            <span class="label" id="pet-sta-label">Stamina</span>
+            <div class="stamina-split">
+              <div>
+                <input type="number" id="pet-sta-cur" min="0" placeholder="—" />
+                <label class="stamina-sublabel" for="pet-sta-cur">Cur</label>
+              </div>
+              <div>
+                <input type="number" id="pet-sta-max" min="0" placeholder="—" />
+                <label class="stamina-sublabel" for="pet-sta-max">Max</label>
+              </div>
+            </div>
+          </div>
+          <div class="field">
+            <label for="pet-speed">Speed</label>
+            <input type="number" id="pet-speed" min="0" placeholder="—" />
+          </div>
+          <div class="field">
+            <label for="pet-climb">Climb</label>
+            <input type="number" id="pet-climb" min="0" placeholder="—" />
+          </div>
+        </div>
+        <div class="stat-row">
+          <div class="field">
+            <label for="pet-slots">Slots</label>
+            <input type="number" id="pet-slots" min="0" max="30" placeholder="—" />
+          </div>
+          <div class="field">
+            <label for="pet-agi">Agility</label>
+            <input type="number" id="pet-agi" min="0" placeholder="—" />
+          </div>
+          <div class="field">
+            <label for="pet-mind">Mind</label>
+            <input type="number" id="pet-mind" min="0" placeholder="—" />
+          </div>
+          <div class="field">
+            <label for="pet-str">Strength</label>
+            <input type="number" id="pet-str" min="0" placeholder="—" />
           </div>
         </div>
       </div>
     </div>
-
-    <div class="card traits-card">
-      <div class="card-title">Traits</div>
-      <textarea id="pet-traits" class="traits-textarea"></textarea>
-    </div>
-
-    <div class="card pet-inventory">
-      <div class="card-title">Inventory</div>
-      <div class="worn-grid" style="margin-bottom:0;">
-        <div class="inv-slot"><span class="inv-slot-label">Slot 1</span><textarea id="pet-inv-1"></textarea></div>
-        <div class="inv-slot"><span class="inv-slot-label">Slot 2</span><textarea id="pet-inv-2"></textarea></div>
-        <div class="inv-slot"><span class="inv-slot-label">Slot 3</span><textarea id="pet-inv-3"></textarea></div>
-        <div class="inv-slot"><span class="inv-slot-label">Slot 4</span><textarea id="pet-inv-4"></textarea></div>
-        <div class="inv-slot"><span class="inv-slot-label">Slot 5</span><textarea id="pet-inv-5"></textarea></div>
-        <div class="inv-slot"><span class="inv-slot-label">Slot 6</span><textarea id="pet-inv-6"></textarea></div>
-      </div>
-    </div>
-
   </div>
+
+  <div class="card traits-card">
+    <div class="card-title">Traits</div>
+    <textarea id="pet-traits" class="traits-textarea" aria-label="Pet traits"></textarea>
+  </div>
+
+  <div class="card traits-card">
+    <div class="card-title">Attacks</div>
+    <textarea id="pet-attacks" class="traits-textarea" aria-label="Pet attacks"></textarea>
+  </div>
+</header>
+
+<div class="card pet-inventory">
+  <div class="card-title">Inventory</div>
+  <p class="pet-inv-hint" id="pet-inv-hint">Enter a number in Slots to add inventory slots.</p>
+  <!-- One slot per point of the Slots stat; built by js/sheet.js -->
+  <div class="worn-grid" id="pet-inv"></div>
+</div>
+
 </div><!-- /view-pets -->
 
 <!-- ═══════════ Town view (one shared town) ═══════════ -->

@@ -1,20 +1,64 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-/* ── Type scale: every font size on the sheet comes from one of these ── */
+/* ── Design tokens: every font size and colour on the sheet comes from here ── */
 :root {
+  /* Type scale */
   --fs-title: 0.75rem;   /* card titles */
   --fs-label: 0.68rem;   /* small uppercase labels */
   --fs-text: 0.9rem;     /* inputs, textareas, list text */
   --fs-ui: 0.78rem;      /* top bar buttons and dropdowns */
+  --fs-stat: 1.3rem;     /* numbers in the square attribute boxes */
   --ls-label: 0.08em;
+
+  /* Surfaces, darkest to lightest */
+  --c-bg: #121212;       /* page */
+  --c-bar: #1a1a1a;      /* top bar */
+  --c-card: #1e1e1e;     /* boxes */
+  --c-field: #2a2a2a;    /* inputs and buttons */
+  --c-hover: #333;       /* hovered button */
+  --c-active: #3a3a3a;   /* selected button, ticked checkbox */
+
+  /* Lines */
+  --c-line: #2e2e2e;     /* box borders and dividers */
+  --c-edge: #3a3a3a;     /* input and button borders */
+  --c-edge-strong: #444; /* checkbox borders */
+  --c-edge-hover: #555;  /* hovered button border */
+  --c-focus: #666;       /* focused input border */
+
+  /* Text, faintest to brightest */
+  --c-placeholder: #444;
+  --c-faint: #666;       /* small group and slot labels */
+  --c-group: #777;       /* dropdown group headings */
+  --c-muted: #888;       /* field labels */
+  --c-dim: #aaa;         /* card titles */
+  --c-soft: #ccc;        /* button text, list text */
+  --c-text: #e0e0e0;
+  --c-bright: #fff;
+
+  /* Destructive actions */
+  --c-danger-bg: #3a2222;
+  --c-danger-edge: #7a3a3a;
+  --c-danger-text: #f2b8b8;
 }
 
 body {
   min-height: 100vh;
-  background: #121212;
+  background: var(--c-bg);
   font-family: system-ui, sans-serif;
-  color: #e0e0e0;
+  color: var(--c-text);
   padding: 1.5rem 1.5rem 4rem;
+}
+
+/* ── Storage warning banner (shown by sheet.js if the browser won't save) ── */
+.save-warning {
+  margin: 0 0 1.4rem;
+  padding: 0.7rem 1rem;
+  background: var(--c-danger-bg);
+  border: 1px solid var(--c-danger-edge);
+  border-radius: 6px;
+  color: var(--c-danger-text);
+  font-size: var(--fs-text);
+  text-align: center;
 }
 
 /* ── Top header bar: [title | nav | export/load] ── */
@@ -28,88 +72,53 @@ body {
   gap: 1rem;
   margin: -1.5rem -1.5rem 1.5rem;
   padding: 0.7rem 1.5rem;
-  background: #1a1a1a;
-  border-bottom: 1px solid #2e2e2e;
+  background: var(--c-bar);
+  border-bottom: 1px solid var(--c-line);
 }
 .site-title {
   font-family: 'MedievalSharp', serif;
   font-size: 1.9rem;
   font-weight: 400;
-  color: #ffffff;
+  color: var(--c-bright);
   letter-spacing: 0.03em;
   line-height: 1;
 }
 .site-nav { display: flex; gap: 0.5rem; justify-content: center; }
 .site-actions { display: flex; gap: 0.5rem; justify-content: flex-end; }
 
+/* ── Buttons and dropdowns: one shared look ── */
 .site-bar button,
-.site-bar a.nav-btn {
-  background: #2a2a2a;
-  border: 1px solid #3a3a3a;
+.site-bar select,
+.storage-controls button {
+  background: var(--c-field);
+  border: 1px solid var(--c-edge);
   border-radius: 4px;
-  color: #ccc;
+  color: var(--c-soft);
   font-family: inherit;
   font-size: var(--fs-ui);
   letter-spacing: 0.05em;
-  padding: 0.45rem 1rem;
   cursor: pointer;
-  text-decoration: none;
   transition: background 0.15s, border-color 0.15s, color 0.15s;
 }
 .site-bar button:hover,
-.site-bar a.nav-btn:hover { background: #333; border-color: #555; color: #fff; }
-.site-bar .nav-btn.active { background: #3a3a3a; border-color: #888; color: #fff; }
-.site-bar select.active { background: #3a3a3a; border-color: #888; color: #fff; }
+.site-bar select:hover,
+.storage-controls button:hover:not(:disabled) { background: var(--c-hover); border-color: var(--c-edge-hover); color: var(--c-bright); }
+
+.site-bar button { padding: 0.45rem 1rem; }
 .site-bar select {
-  background: #2a2a2a;
-  border: 1px solid #3a3a3a;
-  border-radius: 4px;
-  color: #ccc;
-  font-family: inherit;
-  font-size: var(--fs-ui);
-  letter-spacing: 0.05em;
   padding: 0.45rem 0.6rem;
   min-width: 9rem;
   max-width: 14rem;
-  cursor: pointer;
   outline: none;
 }
-.site-bar select:hover { background: #333; border-color: #555; color: #fff; }
-.site-bar select.active:hover { background: #444; border-color: #888; }
-
-/* ── Town: shared storage, grows in rows of 6 ── */
-.storage-controls { display: flex; justify-content: center; gap: 0.5rem; }
-.storage-controls button {
-  background: #2a2a2a;
-  border: 1px solid #3a3a3a;
-  border-radius: 4px;
-  color: #ccc;
-  font-family: inherit;
-  font-size: var(--fs-text);
-  width: 2.2rem;
-  padding: 0.3rem 0;
-  cursor: pointer;
-  transition: background 0.15s, border-color 0.15s, color 0.15s;
-}
-.storage-controls button:hover:not(:disabled) { background: #333; border-color: #555; color: #fff; }
-.storage-controls button:disabled { opacity: 0.35; cursor: default; }
-
-/* ── Pet sheet ── */
-.pet-layout {
-  display: grid;
-  grid-template-columns: 300px 1fr;
-  gap: 1.4rem;
-  align-items: stretch;
-}
-.pet-layout .pet-inventory { grid-column: 1 / -1; }
-.pet-box .field { margin-bottom: 0.9rem; }
-.pet-box .stamina-wrap { margin-bottom: 0; }
-.pet-box .stamina-split input { padding: 0.42rem 0.3rem; }
-.site-bar select option { background: #2a2a2a; color: #e0e0e0; }
+.site-bar .nav-btn.active,
+.site-bar select.active { background: var(--c-active); border-color: var(--c-muted); color: var(--c-bright); }
+.site-bar select.active:hover { background: var(--c-edge-strong); border-color: var(--c-muted); }
+.site-bar select option { background: var(--c-field); color: var(--c-text); }
 
 /* "+ New …" stands apart from saved entries: bold in the list, italic when it's the current pick */
-.site-bar select option.new-option { font-weight: 600; color: #fff; background: #333; }
-.site-bar select optgroup { background: #2a2a2a; color: #777; font-style: normal; }
+.site-bar select option.new-option { font-weight: 600; color: var(--c-bright); background: var(--c-hover); }
+.site-bar select optgroup { background: var(--c-field); color: var(--c-group); font-style: normal; }
 .site-bar select.is-new { font-style: italic; border-style: dashed; }
 
 /* Dropdown + its delete button read as one control */
@@ -123,9 +132,71 @@ body {
   font-size: var(--fs-text);
   line-height: 1;
 }
-.site-bar .btn-delete:hover:not(:disabled) { background: #3a2222; border-color: #7a3a3a; color: #f2b8b8; }
-.site-bar .btn-delete:disabled { color: #555; cursor: default; }
-.site-bar .btn-delete:disabled:hover { background: #2a2a2a; border-color: #3a3a3a; }
+.site-bar .btn-delete:hover:not(:disabled) { background: var(--c-danger-bg); border-color: var(--c-danger-edge); color: var(--c-danger-text); }
+.site-bar .btn-delete:disabled { color: var(--c-edge-hover); cursor: default; }
+.site-bar .btn-delete:disabled:hover { background: var(--c-field); border-color: var(--c-edge); }
+
+/* ── Card ── */
+.card {
+  background: var(--c-card);
+  border: 1px solid var(--c-line);
+  border-radius: 6px;
+  padding: 1.2rem 1.4rem 1.4rem;
+}
+.card-title {
+  font-size: var(--fs-title);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--c-dim);
+  text-align: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.45rem;
+  border-bottom: 1px solid var(--c-line);
+}
+/* Combined cards: each section gets its own title, spaced from the one above */
+.card-section + .card-section { margin-top: 1.4rem; }
+
+/* ── Fields ── */
+.field { margin-bottom: 0.9rem; }
+.field:last-child { margin-bottom: 0; }
+
+label,
+.label {
+  display: block;
+  font-size: var(--fs-label);
+  letter-spacing: var(--ls-label);
+  text-transform: uppercase;
+  color: var(--c-muted);
+  margin-bottom: 0.28rem;
+}
+
+input[type="text"],
+input[type="number"],
+textarea {
+  width: 100%;
+  background: var(--c-field);
+  border: 1px solid var(--c-edge);
+  border-radius: 4px;
+  color: var(--c-text);
+  font-family: inherit;
+  font-size: var(--fs-text);
+  padding: 0.42rem 0.6rem;
+  outline: none;
+  transition: border-color 0.15s;
+  resize: none;
+}
+input:focus, textarea:focus { border-color: var(--c-focus); }
+input::placeholder, textarea::placeholder { color: var(--c-placeholder); }
+input[type="number"] { -moz-appearance: textfield; }
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button { display: none; }
+
+/* ── Inner grids ── */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.8rem; }
+.grid-2 .field,
+.grid-3 .field { margin-bottom: 0; }
 
 /* ── Sheet header: [character + advancement | attributes + conditions | traits] ── */
 header.sheet-header {
@@ -138,150 +209,51 @@ header.sheet-header {
 
 /* Boxes in each row share a height; free-text areas soak up the extra space */
 .sheet-header .card { display: flex; flex-direction: column; }
+
+/* Character + advancement */
 .identity-section { flex: 1; display: flex; flex-direction: column; }
-.feature-field { flex: 1; display: flex; flex-direction: column; }
-.attributes-card { justify-content: space-evenly; }
-
-/* Combined cards: each section gets its own title, spaced from the one above */
-.card-section + .card-section { margin-top: 1.4rem; }
-
 .identity-section .grid-2 { grid-template-columns: repeat(2, 12rem); margin-bottom: 0.7rem; }
 .identity-card .grid-3 { grid-template-columns: repeat(3, 7.7rem); align-items: end; }
 .identity-card input,
 .identity-card textarea { padding: 0.3rem 0.5rem; }
+.feature-field { flex: 1; display: flex; flex-direction: column; }
 .feature-field textarea { flex: 1; min-height: 3.2rem; }
 
-/* ── Full-width bands (traits sits outside the sidebar grid) ── */
-.full-width { margin-bottom: 1.4rem; }
-
-/* ── Bottom row: [inventory | expertises + npc + boon] ── */
-.page {
-  display: grid;
-  grid-template-columns: 1fr 480px;
-  gap: 1.4rem;
-  align-items: stretch;
-}
-
-/* Inventory grows to match the expertises box: 1 worn row + 4 pack rows share the height */
-.inventory-section { display: flex; }
-.inventory-section .card { flex: 1; display: flex; flex-direction: column; }
-.inventory-section .worn-grid { flex: 1 1 0; grid-auto-rows: 1fr; }
-.inventory-section .inventory-grid { flex: 4 1 1.8rem; grid-auto-rows: 1fr; } /* basis = its 3 row gaps */
-.inventory-section .inv-slot textarea { flex: 1; height: auto; min-height: 9rem; }
-
-/* Traits fills whatever width is left in the top row */
-.sheet-header .traits-card { flex: 1 1 10rem; min-width: 0; }
-
-/* ── Card ── */
-.card {
-  background: #1e1e1e;
-  border: 1px solid #2e2e2e;
-  border-radius: 6px;
-  padding: 1.2rem 1.4rem 1.4rem;
-}
-.card-title {
-  font-size: var(--fs-title);
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: #aaa;
-  text-align: center;
-  margin-bottom: 1rem;
-  padding-bottom: 0.45rem;
-  border-bottom: 1px solid #2e2e2e;
-}
-
-/* ── Fields ── */
-.field { margin-bottom: 0.9rem; }
-.field:last-child { margin-bottom: 0; }
-
-label {
-  display: block;
-  font-size: var(--fs-label);
-  letter-spacing: var(--ls-label);
-  text-transform: uppercase;
-  color: #888;
-  margin-bottom: 0.28rem;
-}
-
-input[type="text"],
-input[type="number"],
-textarea {
-  width: 100%;
-  background: #2a2a2a;
-  border: 1px solid #3a3a3a;
-  border-radius: 4px;
-  color: #e0e0e0;
-  font-family: inherit;
-  font-size: var(--fs-text);
-  padding: 0.42rem 0.6rem;
-  outline: none;
-  transition: border-color 0.15s;
-  resize: none;
-}
-input:focus, textarea:focus { border-color: #666; }
-input::placeholder, textarea::placeholder { color: #444; }
-input[type="number"] { -moz-appearance: textfield; }
-input[type="number"]::-webkit-inner-spin-button,
-input[type="number"]::-webkit-outer-spin-button { display: none; }
-
-/* ── Inner grids ── */
-.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
-.grid-2 .field { margin-bottom: 0; }
-.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.8rem; }
-.grid-3 .field { margin-bottom: 0; }
-.span-2 { grid-column: 1 / -1; }
-
-/* ── Attributes: two rows of 4; each column is wide enough for stamina's Cur + Max ── */
+/* Attributes: two rows of 4 square boxes; stamina holds two squares (Cur + Max) */
+.attributes-card { justify-content: space-evenly; }
 .attr-grid {
   display: grid;
-  grid-template-columns: repeat(4, 8.4rem);
-  gap: 0.8rem 0.4rem;
+  grid-template-columns: repeat(4, auto);
+  justify-content: center;
+  justify-items: center;
+  gap: 0.8rem 1.2rem;
   text-align: center;
 }
 .attr-grid .field { margin-bottom: 0; }
+.attr-grid .label,
 .attr-grid label { text-align: center; }
-.attr-grid input { text-align: center; width: 100%; padding: 0.3rem 0.2rem; }
+.attr-grid input {
+  width: 3.6rem;
+  height: 3.6rem;
+  padding: 0;
+  text-align: center;
+  font-size: var(--fs-stat);
+}
 
-.attr-grid .stamina-split { gap: 0.4rem; }
+/* Stamina: a Cur and a Max box side by side (also used on the pet sheet) */
 .stamina-wrap { display: flex; flex-direction: column; }
-.stamina-wrap > label { margin-bottom: 0.28rem; }
 .stamina-split { display: grid; grid-template-columns: 1fr 1fr; gap: 0.25rem; flex: 1; }
 .stamina-split input { text-align: center; padding: 0.3rem 0.1rem; }
+.attr-grid .stamina-split { grid-template-columns: auto auto; gap: 0.4rem; }
+.attr-grid .stamina-split input { padding: 0; }
 .stamina-sublabel {
-  font-size: var(--fs-label);
-  letter-spacing: var(--ls-label);
-  text-transform: uppercase;
-  color: #666;
+  color: var(--c-faint);
   text-align: center;
-  margin-top: 0.2rem;
+  margin: 0.2rem 0 0;
 }
 
-/* ── Traits (full width, stretches to match sidebar height) ── */
-.traits-card {
-  display: flex;
-  flex-direction: column;
-}
-.traits-textarea {
-  flex: 1;
-  width: 100%;
-  min-height: 200px;
-  background: #2a2a2a;
-  border: 1px solid #3a3a3a;
-  border-radius: 4px;
-  color: #e0e0e0;
-  font-family: inherit;
-  font-size: var(--fs-text);
-  padding: 0.6rem 0.7rem;
-  outline: none;
-  resize: vertical;
-  transition: border-color 0.15s;
-  line-height: 1.5;
-}
-.traits-textarea:focus { border-color: #666; }
-
-/* ── Conditions ── */
-.condition-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.45rem 0.8rem; }
+/* Conditions */
+.condition-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.6rem 1rem; }
 .condition-item {
   display: flex;
   align-items: center;
@@ -293,68 +265,49 @@ input[type="number"]::-webkit-outer-spin-button { display: none; }
   appearance: none;
   -webkit-appearance: none;
   width: 1.1rem; height: 1.1rem; min-width: 1.1rem;
-  border: 1px solid #444;
+  border: 1px solid var(--c-edge-strong);
   border-radius: 3px;
-  background: #2a2a2a;
+  background: var(--c-field);
   cursor: pointer;
   position: relative;
   transition: background 0.15s, border-color 0.15s;
 }
-.condition-item input[type="checkbox"]:checked { background: #3a3a3a; border-color: #888; }
+.condition-item input[type="checkbox"]:checked { background: var(--c-active); border-color: var(--c-muted); }
 .condition-item input[type="checkbox"]:checked::after {
   content: '✓';
   position: absolute;
   top: 50%; left: 50%;
   transform: translate(-50%, -50%);
-  color: #e0e0e0;
+  color: var(--c-text);
   font-size: 0.75rem;
   line-height: 1;
 }
-.condition-item span { font-size: var(--fs-label); letter-spacing: var(--ls-label); text-transform: uppercase; color: #aaa; }
-/* Conditions sit under the attributes, so match their smaller scale */
-.condition-grid .condition-item { gap: 0.4rem; margin-bottom: 0; }
-.condition-grid .condition-item input[type="checkbox"] { width: 0.9rem; height: 0.9rem; min-width: 0.9rem; }
+.condition-item span { font-size: var(--fs-label); letter-spacing: var(--ls-label); text-transform: uppercase; color: var(--c-dim); }
+.condition-grid .condition-item { margin-bottom: 0; }
+.condition-grid .condition-item input[type="checkbox"] { width: 1.15rem; height: 1.15rem; min-width: 1.15rem; }
+.condition-grid .condition-item span { font-size: var(--fs-ui); }
 
-/* ── Expertise two-column layout ── */
-.expertise-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1.4rem; }
+/* Traits: two tall boxes side by side; the card fills whatever width is left in the top row */
+.traits-card { display: flex; flex-direction: column; }
+.sheet-header .traits-card { flex: 1 1 10rem; min-width: 0; }
+.traits-textarea {
+  flex: 1;
+  min-height: 200px;
+  padding: 0.6rem 0.7rem;
+  line-height: 1.5;
+}
+.traits-split { flex: 1; display: flex; gap: 0.6rem; }
+.traits-split .traits-textarea { flex: 1 1 0; min-width: 0; min-height: 0; }
 
-.expertise-col-header {
+/* ── Bottom row: [inventory | expertises + npc + boon] ── */
+.page {
   display: grid;
-  grid-template-columns: 1fr 2.2rem 2.2rem;
-  gap: 0.15rem;
-  font-size: var(--fs-label);
-  letter-spacing: var(--ls-label);
-  text-transform: uppercase;
-  color: #666;
-  border-bottom: 1px solid #2e2e2e;
-  padding-bottom: 0.3rem;
-  margin-bottom: 0.4rem;
-}
-.expertise-col-header span:not(:first-child) { text-align: center; }
-
-.expertise-row {
-  display: grid;
-  grid-template-columns: 1fr 2.2rem 2.2rem;
-  gap: 0.15rem;
-  align-items: center;
-  margin-bottom: 0.28rem;
-}
-.expertise-row:last-child { margin-bottom: 0; }
-.expertise-label { font-size: var(--fs-text); color: #ccc; padding-left: 0.1rem; }
-.expertise-row input { text-align: center; padding: 0.22rem 0.1rem; }
-
-.expertise-group { margin-bottom: 0.7rem; }
-.expertise-group:last-child { margin-bottom: 0; }
-.expertise-group-label {
-  font-size: var(--fs-label);
-  letter-spacing: var(--ls-label);
-  text-transform: uppercase;
-  color: #666;
-  margin-bottom: 0.3rem;
-  margin-top: 0.6rem;
+  grid-template-columns: 1fr 480px;
+  gap: 1.4rem;
+  align-items: stretch;
 }
 
-/* ── Inventory ── */
+/* ── Inventory slots (character, pet and town storage) ── */
 .worn-grid {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
@@ -368,30 +321,91 @@ input[type="number"]::-webkit-outer-spin-button { display: none; }
 }
 .inv-slot { display: flex; flex-direction: column; gap: 0.25rem; }
 .inv-slot-label {
+  color: var(--c-faint);
+  margin-bottom: 0;
+}
+.inv-slot textarea {
+  height: 9rem;
+  padding: 0.4rem 0.5rem;
+  line-height: 1.4;
+}
+
+/* Character inventory grows to match the expertises box: 1 worn row + 4 pack rows share the height */
+.inventory-section { display: flex; }
+.inventory-section .card { flex: 1; display: flex; flex-direction: column; }
+.inventory-section .worn-grid { flex: 1 1 0; grid-auto-rows: 1fr; }
+.inventory-section .inventory-grid { flex: 4 1 1.8rem; grid-auto-rows: 1fr; } /* basis = its 3 row gaps */
+.inventory-section .inv-slot textarea { flex: 1; height: auto; min-height: 9rem; }
+
+/* ── Expertises: two columns of grouped skills, each with Cur + Max ── */
+.expertise-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1.4rem; }
+
+.expertise-col-header,
+.expertise-row {
+  display: grid;
+  grid-template-columns: 1fr 2.2rem 2.2rem;
+  gap: 0.15rem;
+}
+.expertise-col-header {
   font-size: var(--fs-label);
   letter-spacing: var(--ls-label);
   text-transform: uppercase;
-  color: #666;
+  color: var(--c-faint);
+  border-bottom: 1px solid var(--c-line);
+  padding-bottom: 0.3rem;
+  margin-bottom: 0.4rem;
 }
-.inv-slot textarea {
-  width: 100%;
-  height: 9rem;
-  background: #2a2a2a;
-  border: 1px solid #3a3a3a;
-  border-radius: 4px;
-  color: #e0e0e0;
-  font-family: inherit;
+.expertise-col-header span:not(:first-child) { text-align: center; }
+
+.expertise-row { align-items: center; margin-bottom: 0.28rem; }
+.expertise-row:last-child { margin-bottom: 0; }
+.expertise-label {
   font-size: var(--fs-text);
-  padding: 0.4rem 0.5rem;
-  outline: none;
-  resize: none;
-  transition: border-color 0.15s;
-  line-height: 1.4;
+  letter-spacing: normal;
+  text-transform: none;
+  color: var(--c-soft);
+  padding-left: 0.1rem;
+  margin-bottom: 0;
+  cursor: pointer;
 }
-.inv-slot textarea:focus { border-color: #666; }
+.expertise-row input { text-align: center; padding: 0.22rem 0.1rem; }
+
+.expertise-group { margin-bottom: 0.7rem; }
+.expertise-group:last-child { margin-bottom: 0; }
+.expertise-group-label {
+  font-size: var(--fs-label);
+  letter-spacing: var(--ls-label);
+  text-transform: uppercase;
+  color: var(--c-faint);
+  margin-bottom: 0.3rem;
+  margin-top: 0.6rem;
+}
+
+/* ── Pet sheet: header reuses the crow sheet's boxes; inventory sits below ── */
+.pet-inventory .worn-grid { margin-bottom: 0; }
+
+/* Stats: each row spreads its four boxes evenly across the box's width */
+.pet-stats { display: flex; flex-direction: column; width: max-content; margin: 0 auto; }
+.stat-row { display: flex; justify-content: space-between; gap: 1.2rem; }
+
+/* Traits and Attacks split the leftover width equally; the row height comes from the other boxes */
+.sheet-header .traits-card > .traits-textarea { min-height: 0; }
+.pet-inv-hint { color: var(--c-faint); font-size: var(--fs-text); text-align: center; }
+
+/* ── Town: shared storage, grows in rows of 6 ── */
+.storage-controls { display: flex; justify-content: center; gap: 0.5rem; }
+.storage-controls button {
+  font-size: var(--fs-text);
+  letter-spacing: normal;
+  width: 2.2rem;
+  padding: 0.3rem 0;
+}
+.storage-controls button:disabled { opacity: 0.35; cursor: default; }
+
+/* ── Narrow screens: everything stacks ── */
 @media (max-width: 1000px) {
   .site-bar { grid-template-columns: 1fr; justify-items: center; gap: 0.6rem; }
   .site-actions { justify-content: center; }
-  .page, .pet-layout { grid-template-columns: 1fr; }
+  .page { grid-template-columns: 1fr; }
   .worn-grid { grid-template-columns: repeat(3, 1fr); }
 }
