@@ -1,4 +1,5 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+[hidden] { display: none !important; }
 
 /* ── Design tokens: every font size and colour on the sheet comes from here ── */
 :root {
@@ -97,7 +98,9 @@ body {
 .site-bar button,
 .site-bar select,
 .storage-controls button,
-.roulette-controls button {
+.roulette-controls button,
+.items-layout button,
+.item-tray button {
   background: var(--c-field);
   border: 1px solid var(--c-edge);
   border-radius: 4px;
@@ -111,7 +114,9 @@ body {
 .site-bar button:hover,
 .site-bar select:hover,
 .storage-controls button:hover:not(:disabled),
-.roulette-controls button:hover:not(:disabled) { background: var(--c-hover); border-color: var(--c-edge-hover); color: var(--c-bright); }
+.roulette-controls button:hover:not(:disabled),
+.items-layout button:hover,
+.item-tray button:hover { background: var(--c-hover); border-color: var(--c-edge-hover); color: var(--c-bright); }
 
 .site-bar button { padding: 0.45rem 1rem; }
 .site-bar select {
@@ -182,6 +187,7 @@ label,
 
 input[type="text"],
 input[type="number"],
+input[type="search"],
 textarea {
   width: 100%;
   background: var(--c-field);
@@ -411,6 +417,89 @@ header.sheet-header {
 }
 .storage-controls button:disabled { opacity: 0.35; cursor: default; }
 
+/* ── Items page: create / edit your own items ── */
+.items-layout {
+  display: grid;
+  grid-template-columns: minmax(18rem, 26rem) 1fr;
+  gap: 1.4rem;
+  align-items: start;
+}
+.items-layout button { padding: 0.45rem 1rem; }
+.item-form-buttons { display: flex; gap: 0.5rem; margin-top: 0.9rem; }
+.item-count { color: var(--c-faint); font-weight: 400; margin-left: 0.4rem; }
+#item-search { margin-bottom: 0.8rem; }
+.library-list { list-style: none; display: grid; gap: 0.5rem; }
+.library-item { background: var(--c-field); border: 1px solid var(--c-edge); border-radius: 4px; padding: 0.55rem 0.7rem; }
+.library-head { display: flex; align-items: center; gap: 0.5rem; }
+.library-name { font-weight: 600; margin-right: auto; overflow-wrap: anywhere; }
+.items-layout .item-action { padding: 0.25rem 0.75rem; }
+.items-layout .item-delete:hover { background: var(--c-danger-bg); border-color: var(--c-danger-edge); color: var(--c-danger-text); }
+.library-text { margin-top: 0.3rem; color: var(--c-soft); font-size: var(--fs-text); line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; }
+.items-empty { list-style: none; color: var(--c-faint); font-size: var(--fs-text); padding: 0.5rem 0; }
+.items-hint { color: var(--c-faint); font-size: var(--fs-text); margin-top: 1rem; }
+
+/* ── Item tray: slides in on the right; js/items.js sets its top to sit under the top bar ── */
+.item-tray {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  width: min(19rem, 90vw);
+  z-index: 9;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 1rem;
+  background: var(--c-bar);
+  border-left: 1px solid var(--c-line);
+  box-shadow: -8px 0 24px rgba(0, 0, 0, 0.4);
+}
+.tray-head { display: flex; align-items: center; justify-content: space-between; }
+.tray-head .card-title { border: 0; margin: 0; padding: 0; }
+.item-tray #tray-close { padding: 0.2rem 0.6rem; font-size: var(--fs-text); }
+.tray-hint { color: var(--c-muted); font-size: var(--fs-ui); line-height: 1.4; }
+.tray-list { list-style: none; flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 0.4rem; }
+.item-tray .tray-item {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.5rem 0.6rem;
+  text-align: left;
+  letter-spacing: normal;
+  color: var(--c-text);
+  cursor: grab;
+}
+.item-tray .tray-item:active { cursor: grabbing; }
+.item-tray .tray-item.picked { border-color: var(--c-wheel-gold); box-shadow: 0 0 0 1px var(--c-wheel-gold); }
+.tray-item-name { font-weight: 600; font-size: var(--fs-text); }
+.tray-item-text {
+  color: var(--c-faint);
+  font-size: var(--fs-ui);
+  white-space: pre-line;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+.item-tray .tray-manage { padding: 0.45rem 1rem; }
+
+/* Make room for the tray on wide screens instead of covering the sheet */
+@media (min-width: 1100px) {
+  body.tray-open { padding-right: calc(19rem + 1.5rem); }
+  body.tray-open .site-bar { margin-right: calc(-19rem - 1.5rem); }
+}
+
+/* Inventory slots light up while an item is being dragged or placed */
+body.dragging-item .inv-slot textarea,
+body.placing-item .inv-slot textarea { border-style: dashed; border-color: var(--c-wheel-gold); }
+body.placing-item .inv-slot textarea { cursor: copy; }
+.inv-slot textarea.drop-target { border-style: solid; background: #33301f; }
+.inv-slot textarea.just-placed { animation: item-placed 0.9s ease-out; }
+@keyframes item-placed {
+  from { box-shadow: 0 0 0 3px var(--c-wheel-gold); }
+  to { box-shadow: 0 0 0 0 transparent; }
+}
+
 /* ── Town: roulette wheel, just for fun ── */
 .roulette-card { margin-top: 1.4rem; }
 .roulette { display: block; width: min(100%, 560px); margin: 0 auto; }
@@ -438,7 +527,6 @@ header.sheet-header {
 .wheel-spoke { stroke: var(--c-wheel-gold); stroke-width: 1.6; stroke-linecap: round; }
 .wheel-hub { fill: var(--c-wheel-gold); }
 .wheel-ball { fill: #f4f4f4; stroke: #999; stroke-width: 0.5; }
-.wheel-pointer { fill: var(--c-wheel-gold); }
 
 .roulette-controls { display: flex; flex-direction: column; align-items: center; gap: 0.6rem; margin-top: 1rem; }
 .roulette-controls button { padding: 0.5rem 2rem; font-size: var(--fs-text); }
@@ -449,6 +537,6 @@ header.sheet-header {
 @media (max-width: 1000px) {
   .site-bar { grid-template-columns: 1fr; justify-items: center; gap: 0.6rem; }
   .site-actions { justify-content: center; }
-  .page { grid-template-columns: 1fr; }
+  .page, .items-layout { grid-template-columns: 1fr; }
   .worn-grid { grid-template-columns: repeat(3, 1fr); }
 }

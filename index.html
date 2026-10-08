@@ -11,6 +11,7 @@
   <script src="js/fields.js" defer></script>
   <script src="js/sheet.js" defer></script>
   <script src="js/roulette.js" defer></script>
+  <script src="js/items.js" defer></script>
 </head>
 <body>
 
@@ -31,8 +32,10 @@
       <button type="button" class="nav-btn btn-delete" id="btn-delete-pet" title="Delete this pet" aria-label="Delete this pet">&times;</button>
     </div>
     <button type="button" class="nav-btn" id="btn-town">Town</button>
+    <button type="button" class="nav-btn" id="btn-items">Items</button>
   </nav>
   <div class="site-actions">
+    <button type="button" class="nav-btn" id="btn-tray" aria-controls="item-tray" aria-expanded="false">Item tray</button>
     <button id="btn-export">Export</button>
     <button id="btn-load">Load</button>
     <input type="file" id="file-input" accept=".json" hidden />
@@ -318,7 +321,6 @@
       <circle class="wheel-rim" r="98" />
       <g id="roulette-wheel" class="wheel-spin"></g>
       <g id="roulette-ball" class="ball-spin"><circle class="wheel-ball" cy="-66" r="4.5" /></g>
-      <path class="wheel-pointer" d="M-5,-100 L5,-100 L0,-90 Z" />
     </svg>
     <div class="roulette-controls">
       <button type="button" id="roulette-spin">Spin</button>
@@ -326,6 +328,48 @@
     </div>
   </div>
 </div><!-- /view-town -->
+
+<!-- ═══════════ Items view: create and edit your own items (js/items.js) ═══════════ -->
+<div id="view-items" class="view" hidden>
+  <div class="items-layout">
+    <div class="card">
+      <div class="card-title" id="item-form-title">New Item</div>
+      <form id="item-form" class="item-form">
+        <div class="field">
+          <label for="item-name">Name</label>
+          <input type="text" id="item-name" maxlength="80" required />
+        </div>
+        <div class="field">
+          <label for="item-text">Description</label>
+          <textarea id="item-text" rows="8"></textarea>
+        </div>
+        <div class="item-form-buttons">
+          <button type="submit" id="item-save">Add item</button>
+          <button type="button" id="item-cancel" hidden>Cancel</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Your Items <span id="item-count" class="item-count"></span></div>
+      <input type="search" id="item-search" placeholder="Search your items…" aria-label="Search your items" />
+      <ul id="item-list" class="library-list"></ul>
+      <p class="items-hint">Open the <strong>Item tray</strong> from the top bar to drag these into inventory slots.</p>
+    </div>
+  </div>
+</div><!-- /view-items -->
+
+<!-- ═══════════ Item tray: drag items into inventory slots (js/items.js) ═══════════ -->
+<aside id="item-tray" class="item-tray" aria-label="Item tray" hidden>
+  <div class="tray-head">
+    <span class="card-title">Item Tray</span>
+    <button type="button" id="tray-close" aria-label="Close item tray">&times;</button>
+  </div>
+  <input type="search" id="tray-search" placeholder="Search items…" aria-label="Search items" />
+  <p id="tray-hint" class="tray-hint" aria-live="polite"></p>
+  <ul id="tray-list" class="tray-list"></ul>
+  <button type="button" id="tray-manage" class="tray-manage">Create &amp; edit items</button>
+</aside>
 
 </body>
 </html>

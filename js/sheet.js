@@ -167,12 +167,19 @@
       k.view.hidden = n !== name;
       k.select.classList.toggle('active', n === name);
     });
-    town.view.hidden = name !== 'town';
-    $('btn-town').classList.toggle('active', name === 'town');
+    // Single shared pages, each opened by its own top-bar button
+    Object.entries(PAGES).forEach(([n, page]) => {
+      $(page.view).hidden = n !== name;
+      $(page.button).classList.toggle('active', n === name);
+    });
     lsSet('crows.view', name);
   }
 
-  $('btn-town').addEventListener('click', () => showView('town'));
+  const PAGES = {
+    town: { view: 'view-town', button: 'btn-town' },
+    items: { view: 'view-items', button: 'btn-items' }
+  };
+  Object.entries(PAGES).forEach(([name, page]) => $(page.button).addEventListener('click', () => showView(name)));
 
   // Dropdowns: clicking or opening one switches to its view; choosing an entry loads it.
   // (Not on focus, so tabbing past a dropdown doesn't change the page.)
@@ -224,14 +231,15 @@
     if (town.view.contains(e.target) && e.target.matches('textarea')) saveTown();
   });
 
-  // ── Export: every character, every pet, and the town in one file ──
+  // ── Export: every character, every pet, the town and the item library in one file ──
   $('btn-export').addEventListener('click', () => {
     const payload = {
       format: 'crows-export',
       version: EXPORT_VERSION,
       characters: KINDS.characters.store,
       pets: KINDS.pets.store,
-      town: { slots: town.slots, storage: town.storage }
+      town: { slots: town.slots, storage: town.storage },
+      items: window.CrowsItems ? window.CrowsItems.all() : []
     };
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
     const a = document.createElement('a');
@@ -271,9 +279,10 @@
           if (k.current !== 'new' && k.store[k.current]) fill(k, k.store[k.current]);
         });
         if (data.town) { loadTown(data.town); saveTown(); }
+        const ni = window.CrowsItems ? window.CrowsItems.merge(data.items) : 0;
         const nc = Object.keys(data.characters || {}).length;
         const np = Object.keys(data.pets || {}).length;
-        alert('Loaded ' + nc + ' character(s) and ' + np + ' pet(s)' + (data.town ? ', plus the town.' : '.'));
+        alert('Loaded ' + nc + ' character(s), ' + np + ' pet(s)' + (ni ? ', ' + ni + ' new item(s)' : '') + (data.town ? ' and the town.' : '.'));
         return;
       }
 
@@ -304,5 +313,5 @@
   });
   try { loadTown(JSON.parse(lsGet('crows.town'))); } catch { loadTown(null); }
   const lastView = lsGet('crows.view');
-  showView(lastView === 'pets' || lastView === 'town' ? lastView : 'characters');
+  showView(Object.hasOwn(KINDS, lastView) || Object.hasOwn(PAGES, lastView) ? lastView : 'characters');
 })();

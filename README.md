@@ -8,8 +8,9 @@ Open `index.html` in a browser.
 
 - **Crows / Pets**: pick an entry from a dropdown, or choose **+ New** and start typing to create one. The **×** next to each dropdown deletes the selected entry.
 - **Town**: one shared page for everyone, with a Storage box that grows and shrinks in rows of 6.
+- **Items**: create your own items (a name and a description). Open the **Item tray** from the top bar and drag an item onto any inventory slot (crow, pet or town storage) to fill it in, or click an item and then click a slot. Your items are included in Export/Load.
 - **Saving** is automatic, in the browser you're using. If the browser can't save (for example in a private window), a red banner tells you.
-- **Export** downloads every crow, pet and the town as one `crows.json` file. **Load** merges a file back in. Export regularly; it's your backup, and it's how you move sheets to another computer or browser.
+- **Export** downloads every crow, pet, the town and your items as one `crows.json` file. **Load** merges a file back in. Export regularly; it's your backup, and it's how you move sheets to another computer or browser.
 
 ## Files
 
@@ -19,6 +20,8 @@ Open `index.html` in a browser.
 | `style.css` | All styling. Colours and font sizes are defined once at the top (`:root`) |
 | `js/fields.js` | Builds the repeated fields: inventory slots and expertise rows |
 | `js/sheet.js` | Saving, loading, export/import, switching between crows, pets and the town |
+| `js/items.js` | The Items page (your item library) and the Item tray for dragging items into slots |
+| `js/roulette.js` | The just-for-fun roulette wheel on the Town page |
 
 ## The one rule: never change a field's `id`
 

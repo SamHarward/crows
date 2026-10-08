@@ -3,13 +3,13 @@
   const $ = id => document.getElementById(id);
   const SVG = 'http://www.w3.org/2000/svg';
 
-  // European wheel, clockwise from 0
-  const POCKETS = [0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10,
-                   5, 24, 16, 33, 1, 20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26];
+  // American wheel (0 and 00), clockwise from 0
+  const POCKETS = [0, 28, 9, 26, 30, 11, 7, 20, 32, 17, 5, 22, 34, 15, 3, 24, 36, 13, 1,
+                   '00', 27, 10, 25, 29, 12, 8, 19, 31, 18, 6, 21, 33, 16, 4, 23, 35, 14, 2];
   const REDS = new Set([1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36]);
   const STEP = 360 / POCKETS.length;
 
-  const colourOf = n => (n === 0 ? 'green' : REDS.has(n) ? 'red' : 'black');
+  const colourOf = n => (n === 0 || n === '00' ? 'green' : REDS.has(n) ? 'red' : 'black');
   const mod = (a, n) => ((a % n) + n) % n;
 
   // ── Draw the wheel ──
@@ -64,10 +64,11 @@
     const index = crypto.getRandomValues(new Uint32Array(1))[0] % POCKETS.length;
     const result = POCKETS[index];
 
-    // The wheel turns clockwise and stops with the winning pocket at the top;
-    // the ball runs the other way and stops at the top, in that pocket.
-    wheelTurn += 360 * 5 + mod(-index * STEP - wheelTurn, 360);
-    ballTurn -= 360 * 8 + mod(ballTurn, 360);
+    // The ball runs anticlockwise and comes to rest at a random spot on the wheel;
+    // the wheel turns clockwise and stops with the winning pocket right under it.
+    const restAt = Math.random() * 360;
+    ballTurn -= 360 * 8 + mod(ballTurn - restAt, 360);
+    wheelTurn += 360 * 5 + mod(restAt - index * STEP - wheelTurn, 360);
     wheel.style.transitionDuration = ball.style.transitionDuration = SPIN_MS + 'ms';
     wheel.style.transform = `rotate(${wheelTurn}deg)`;
     ball.style.transform = `rotate(${ballTurn}deg)`;
