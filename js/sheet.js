@@ -1,11 +1,31 @@
 (function () {
   const $ = id => document.getElementById(id);
 
-  // ── Saved data: make sure what comes from the browser or a file has the right shape ──
-  const isPlainObject = v => !!v && typeof v === 'object' && !Array.isArray(v);
-  function cleanStore(store) {
-    if (!isPlainObject(store)) return {};
-    Object.keys(store).forEach(id => { if (!isPlainObject(store[id])) store[id] = {}; });
+  // ── Saved-data format ──
+  // Bump EXPORT_VERSION whenever the shape of an export changes.
+  const EXPORT_VERSION = 5;
+  // If a field's id ever changes, add 'old-id': 'new-id' here so saves made before the
+  // change still land in the right box. Example: { 'inv-bp-1': 'inv-backpack-1' }
+  const FIELD_RENAMES = {};
+
+  function upgradeEntry(entry) {
+    if (!entry || typeof entry !== 'object' || Array.isArray(entry)) return {};
+    Object.entries(FIELD_RENAMES).forEach(([oldId, newId]) => {
+      if (oldId in entry && !(newId in entry)) entry[newId] = entry[oldId];
+      delete entry[oldId];
+    });
+    // The crow's two Traits boxes became one: keep any text from the old second box
+    if ('traits-2' in entry) {
+      const first = typeof entry.traits === 'string' ? entry.traits : '';
+      const second = typeof entry['traits-2'] === 'string' ? entry['traits-2'] : '';
+      entry.traits = first.trim() && second.trim() ? first.replace(/\s+$/, '') + '\n\n' + second : first || second;
+      delete entry['traits-2'];
+    }
+    return entry;
+  }
+  function upgradeStore(store) {
+    if (!store || typeof store !== 'object' || Array.isArray(store)) return {};
+    Object.keys(store).forEach(id => { store[id] = upgradeEntry(store[id]); });
     return store;
   }
 
@@ -222,6 +242,7 @@
   $('btn-export').addEventListener('click', () => {
     const payload = {
       format: 'crows-export',
+      version: EXPORT_VERSION,
       characters: KINDS.characters.store,
       pets: KINDS.pets.store,
       town: { slots: town.slots, storage: town.storage },
@@ -236,7 +257,12 @@
     setTimeout(() => URL.revokeObjectURL(a.href), 10000);
   });
 
-  // ── Load: a full export is merged into what's already here ──
+  // ── Load: full exports are merged in; old single-character files still work ──
+  const isPlainObject = v => !!v && typeof v === 'object' && !Array.isArray(v);
+  const characterFieldIds = new Set(
+    [...KINDS.characters.view.querySelectorAll('input[id], textarea[id]')].map(el => el.id)
+  );
+
   $('btn-load').addEventListener('click', () => $('file-input').click());
   $('file-input').addEventListener('change', e => {
     const file = e.target.files[0];
@@ -252,8 +278,8 @@
           alert('This Crows export looks damaged, so nothing was loaded.');
           return;
         }
-        Object.assign(KINDS.characters.store, cleanStore(data.characters));
-        Object.assign(KINDS.pets.store, cleanStore(data.pets));
+        Object.assign(KINDS.characters.store, upgradeStore(data.characters || {}));
+        Object.assign(KINDS.pets.store, upgradeStore(data.pets || {}));
         Object.values(KINDS).forEach(k => {
           persist(k);
           render(k);
@@ -267,6 +293,16 @@
         return;
       }
 
+      // Older export: a single character sheet. Only accept it if it has character fields.
+      const single = isPlainObject(data) ? upgradeEntry(data) : null;
+      if (single && Object.keys(single).some(id => characterFieldIds.has(id))) {
+        KINDS.characters.current = 'new';
+        showView('characters');
+        fill(KINDS.characters, single);
+        save(KINDS.characters);
+        return;
+      }
+
       alert('Could not read file — make sure it is a Crows export (.json).');
     };
     reader.readAsText(file);
@@ -276,7 +312,7 @@
   // ── Restore saved state on page load ──
   if (lsSet('crows.check', '1')) { try { localStorage.removeItem('crows.check'); } catch {} }
   Object.values(KINDS).forEach(k => {
-    try { k.store = cleanStore(JSON.parse(lsGet(k.key))); } catch { k.store = {}; }
+    try { k.store = upgradeStore(JSON.parse(lsGet(k.key))); } catch { k.store = {}; }
     k.current = lsGet(k.selKey) || 'new';
     if (k.current !== 'new' && !k.store[k.current]) k.current = 'new';
     render(k);
