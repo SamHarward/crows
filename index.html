@@ -76,15 +76,15 @@
       <div class="grid-3">
         <div class="field">
           <label for="xp-unspent">Unspent XP</label>
-          <input type="number" id="xp-unspent" min="0" placeholder="0" />
+          <input type="number" id="xp-unspent" placeholder="0" />
         </div>
         <div class="field">
           <label for="xp-total">Total XP</label>
-          <input type="number" id="xp-total" min="0" placeholder="0" />
+          <input type="number" id="xp-total" placeholder="0" />
         </div>
         <div class="field">
           <label for="xp-next">Next Advancement</label>
-          <input type="number" id="xp-next" min="1" placeholder="0" />
+          <input type="number" id="xp-next" placeholder="0" />
         </div>
       </div>
     </div>
@@ -96,44 +96,44 @@
       <div class="attr-grid">
         <div class="field">
           <label for="attr-str">Strength</label>
-          <input type="number" id="attr-str" min="1" max="20" placeholder="—" />
+          <input type="number" id="attr-str" max="20" placeholder="—" />
         </div>
         <div class="field">
           <label for="attr-mind">Mind</label>
-          <input type="number" id="attr-mind" min="1" max="20" placeholder="—" />
+          <input type="number" id="attr-mind" max="20" placeholder="—" />
         </div>
         <div class="field">
           <label for="attr-agi">Agility</label>
-          <input type="number" id="attr-agi" min="1" max="20" placeholder="—" />
+          <input type="number" id="attr-agi" max="20" placeholder="—" />
         </div>
         <div class="stamina-wrap field" role="group" aria-labelledby="attr-sta-label">
           <span class="label" id="attr-sta-label">Stamina</span>
           <div class="stamina-split">
             <div>
-              <input type="number" id="attr-sta-cur" min="0" placeholder="—" />
+              <input type="number" id="attr-sta-cur" placeholder="—" />
               <label class="stamina-sublabel" for="attr-sta-cur">Cur</label>
             </div>
             <div>
-              <input type="number" id="attr-sta-max" min="0" placeholder="—" />
+              <input type="number" id="attr-sta-max" placeholder="—" />
               <label class="stamina-sublabel" for="attr-sta-max">Max</label>
             </div>
           </div>
         </div>
         <div class="field">
           <label for="attr-ad">AD</label>
-          <input type="number" id="attr-ad" min="0" placeholder="—" />
+          <input type="number" id="attr-ad" placeholder="—" />
         </div>
         <div class="field">
           <label for="attr-speed">Speed</label>
-          <input type="number" id="attr-speed" min="0" placeholder="—" />
+          <input type="number" id="attr-speed" placeholder="—" />
         </div>
         <div class="field">
           <label for="attr-shift">Shift</label>
-          <input type="number" id="attr-shift" min="0" placeholder="—" />
+          <input type="number" id="attr-shift" placeholder="—" />
         </div>
         <div class="field">
           <label for="attr-cruelty">Cruelty</label>
-          <input type="number" id="attr-cruelty" min="0" placeholder="—" />
+          <input type="number" id="attr-cruelty" placeholder="—" />
         </div>
       </div>
     </div>
@@ -153,14 +153,11 @@
 
   <div class="card traits-card">
     <div class="card-title">Traits</div>
-    <div class="traits-split">
-      <textarea id="traits" class="traits-textarea" aria-label="Traits 1"></textarea>
-      <textarea id="traits-2" class="traits-textarea" aria-label="Traits 2"></textarea>
-    </div>
+    <textarea id="traits" class="traits-textarea" aria-label="Traits"></textarea>
   </div>
 </header>
 
-<!-- ── Bottom row: [inventory | expertises + npc + boon] ── -->
+<!-- ── Bottom row: [inventory | effort + expertises + npc + boon] ── -->
 <div class="page">
   <div class="inventory-section">
     <div class="card">
@@ -172,6 +169,20 @@
   </div>
 
   <div class="card">
+    <div class="card-section">
+      <div class="card-title">Effort</div>
+      <div class="effort-boxes">
+        <div class="field">
+          <label for="effort-cur">Current</label>
+          <input type="number" id="effort-cur" placeholder="—" />
+        </div>
+        <div class="field">
+          <label for="effort-max">Max</label>
+          <input type="number" id="effort-max" placeholder="—" />
+        </div>
+      </div>
+    </div>
+
     <div class="card-section">
       <div class="card-title">Expertises</div>
       <!-- Rows are built by js/fields.js -->
@@ -237,28 +248,28 @@
         <div class="stat-row">
           <div class="field">
             <label for="pet-power">Power</label>
-            <input type="number" id="pet-power" min="0" placeholder="—" />
+            <input type="number" id="pet-power" placeholder="—" />
           </div>
           <div class="stamina-wrap field" role="group" aria-labelledby="pet-sta-label">
             <span class="label" id="pet-sta-label">Stamina</span>
             <div class="stamina-split">
               <div>
-                <input type="number" id="pet-sta-cur" min="0" placeholder="—" />
+                <input type="number" id="pet-sta-cur" placeholder="—" />
                 <label class="stamina-sublabel" for="pet-sta-cur">Cur</label>
               </div>
               <div>
-                <input type="number" id="pet-sta-max" min="0" placeholder="—" />
+                <input type="number" id="pet-sta-max" placeholder="—" />
                 <label class="stamina-sublabel" for="pet-sta-max">Max</label>
               </div>
             </div>
           </div>
           <div class="field">
             <label for="pet-speed">Speed</label>
-            <input type="number" id="pet-speed" min="0" placeholder="—" />
+            <input type="number" id="pet-speed" placeholder="—" />
           </div>
           <div class="field">
             <label for="pet-climb">Climb</label>
-            <input type="number" id="pet-climb" min="0" placeholder="—" />
+            <input type="number" id="pet-climb" placeholder="—" />
           </div>
         </div>
         <div class="stat-row">
@@ -268,15 +279,15 @@
           </div>
           <div class="field">
             <label for="pet-agi">Agility</label>
-            <input type="number" id="pet-agi" min="0" placeholder="—" />
+            <input type="number" id="pet-agi" placeholder="—" />
           </div>
           <div class="field">
             <label for="pet-mind">Mind</label>
-            <input type="number" id="pet-mind" min="0" placeholder="—" />
+            <input type="number" id="pet-mind" placeholder="—" />
           </div>
           <div class="field">
             <label for="pet-str">Strength</label>
-            <input type="number" id="pet-str" min="0" placeholder="—" />
+            <input type="number" id="pet-str" placeholder="—" />
           </div>
         </div>
       </div>
