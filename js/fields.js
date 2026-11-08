@@ -1,8 +1,7 @@
 // Builds the repeated parts of the sheets: inventory slots and expertise checkboxes.
 //
 // IMPORTANT: each field's id is how saved crows and exported files find their data.
-// Never change an existing id here. To rename one, change it here AND add the
-// old → new pair to FIELD_RENAMES in sheet.js so existing saves are carried over.
+// Changing an id means anything already saved in that box is no longer shown.
 (function () {
   const $ = id => document.getElementById(id);
 
@@ -21,8 +20,6 @@
   ];
 
   // ── Expertises: two columns of groups. Each skill gets one checkbox, exp-<key>. ──
-  // (Older saves used exp-<key>-cur and exp-<key>-max number boxes; those values stay in the
-  // save but nothing shows them any more.)
   const EXPERTISES = [
     [
       ['General', [

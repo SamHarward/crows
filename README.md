@@ -24,18 +24,11 @@ Open `index.html` in a browser.
 | `js/items.js` | The Items page (your item library), the Item tray for dragging items into slots, and the ⠿ handle that moves a slot's contents to an empty slot |
 | `js/roulette.js` | The just-for-fun roulette wheel on the Town page |
 
-## The one rule: never change a field's `id`
+## Field `id`s
 
-Every box has an `id` (like `char-name` or `inv-bp-3`). Saved crows and exported files find their data by that id. You can freely move boxes, restyle them, or change the text people see. But if an id changes, existing saves can't find their data.
+Every box has an `id` (like `char-name` or `inv-bp-3`). Saved crows and exported files find their data by that id. You can freely move boxes, restyle them, or change the text people see. But if you change an id, anything already saved in that box is no longer shown. There is no automatic carry-over for old saves.
 
-If you really need to rename one:
-
-1. Change the id (in `index.html` or `js/fields.js`).
-2. Add the old and new ids to `FIELD_RENAMES` at the top of `js/sheet.js`, e.g. `{ 'inv-bp-1': 'inv-backpack-1' }`.
-
-Old saves and exports are then moved to the new id automatically when they load.
-
-Adding new fields is always safe: older saves just leave them blank.
+Adding new fields is always safe: existing saves just leave them blank.
 
 ## Previewing while editing
 
