@@ -157,7 +157,7 @@
   </div>
 </header>
 
-<!-- ── Bottom row: [inventory | expertises + npc + boon] ── -->
+<!-- ── Bottom row: [inventory | effort + expertises + npc + boon] ── -->
 <div class="page">
   <div class="inventory-section">
     <div class="card">
@@ -169,6 +169,20 @@
   </div>
 
   <div class="card">
+    <div class="card-section">
+      <div class="card-title">Effort</div>
+      <div class="effort-boxes">
+        <div class="field">
+          <label for="effort-cur">Current</label>
+          <input type="number" id="effort-cur" placeholder="—" />
+        </div>
+        <div class="field">
+          <label for="effort-max">Max</label>
+          <input type="number" id="effort-max" placeholder="—" />
+        </div>
+      </div>
+    </div>
+
     <div class="card-section">
       <div class="card-title">Expertises</div>
       <!-- Rows are built by js/fields.js -->

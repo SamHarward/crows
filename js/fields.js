@@ -1,4 +1,4 @@
-// Builds the repeated parts of the sheets: inventory slots and expertise rows.
+// Builds the repeated parts of the sheets: inventory slots and expertise checkboxes.
 //
 // IMPORTANT: each field's id is how saved crows and exported files find their data.
 // Never change an existing id here. To rename one, change it here AND add the
@@ -20,7 +20,9 @@
     ['inv-bp-6', 'Backpack 6'], ['inv-bp-7', 'Backpack 7'], ['inv-bp-8', 'Backpack 8'], ['inv-bp-9', 'Backpack 9'], ['inv-bp-10', 'Backpack 10']
   ];
 
-  // ── Expertises: two columns of groups. Each skill gets exp-<key>-cur and exp-<key>-max. ──
+  // ── Expertises: two columns of groups. Each skill gets one checkbox, exp-<key>. ──
+  // (Older saves used exp-<key>-cur and exp-<key>-max number boxes; those values stay in the
+  // save but nothing shows them any more.)
   const EXPERTISES = [
     [
       ['General', [
@@ -80,29 +82,19 @@
     list.forEach(entry => container.append(entry ? slot(entry[0], entry[1]) : el('div')));
   }
 
-  function numberInput(id, ariaLabel) {
-    const input = el('input');
-    input.type = 'number';
-    input.id = id;
-    input.placeholder = '—';
-    input.setAttribute('aria-label', ariaLabel);
-    return input;
-  }
   function expertiseColumn(groups) {
     const col = el('div');
-    const header = el('div', 'expertise-col-header');
-    header.append(el('span', '', 'Skill'), el('span', '', 'Cur'), el('span', '', 'Max'));
-    col.append(header);
     groups.forEach(([groupName, skills]) => {
       const group = el('div', 'expertise-group');
       group.append(el('div', 'expertise-group-label', groupName));
       skills.forEach(([key, name]) => {
         const row = el('div', 'expertise-row');
         const label = el('label', 'expertise-label', name);
-        label.htmlFor = 'exp-' + key + '-cur';
-        row.append(label,
-          numberInput('exp-' + key + '-cur', name + ' current'),
-          numberInput('exp-' + key + '-max', name + ' max'));
+        label.htmlFor = 'exp-' + key;
+        const box = el('input');
+        box.type = 'checkbox';
+        box.id = 'exp-' + key;
+        row.append(label, box);
         group.append(row);
       });
       col.append(group);

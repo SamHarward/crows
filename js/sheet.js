@@ -3,7 +3,7 @@
 
   // ── Saved-data format ──
   // Bump EXPORT_VERSION whenever the shape of an export changes.
-  const EXPORT_VERSION = 4;
+  const EXPORT_VERSION = 5;
   // If a field's id ever changes, add 'old-id': 'new-id' here so saves made before the
   // change still land in the right box. Example: { 'inv-bp-1': 'inv-backpack-1' }
   const FIELD_RENAMES = {};
