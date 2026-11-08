@@ -2,6 +2,8 @@
 // Players create their own items on the Items page. The Item tray lists them on every
 // other page so they can be dragged (or clicked, then a slot clicked) into inventory slots.
 // Items are saved in this browser and included in Export/Load.
+// This file also handles the ⠿ handle on each inventory slot, which moves a slot's contents
+// to an empty slot (drag it, or click it and then click an empty slot).
 (function () {
   const $ = id => document.getElementById(id);
   const SAVE_KEY = 'crows.itemLibrary';
@@ -149,6 +151,7 @@
 
   function setPicked(id) {
     picked = id;
+    if (id) setMoving(null); // only one click-to-place mode at a time
     document.body.classList.toggle('placing-item', !!id);
     $('tray-hint').textContent = id
       ? 'Now click an inventory slot to place "' + findItem(id).name + '". Press Esc to cancel.'
@@ -213,6 +216,93 @@
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape' && picked) setPicked(null);
   });
+
+  // ── Moving a slot's contents to an empty slot (the ⠿ handle, built in fields.js) ──
+  const MOVE_TYPE = 'application/x-crows-slot';
+  let dragFrom = null;   // slot being dragged by its handle
+  let moving = null;     // slot picked by clicking its handle, waiting for an empty slot to be clicked
+
+  const hasText = box => !!box.value.trim();
+  // Only into an empty slot, and only on the page that's showing (crow, pet and town are separate pages)
+  const canMove = (from, to) => !!from && isSlot(to) && to !== from && hasText(from) && !hasText(to) &&
+    from.closest('.view') === to.closest('.view');
+
+  function moveContents(from, to) {
+    if (!canMove(from, to)) return false;
+    to.value = from.value;
+    from.value = '';
+    to.dispatchEvent(new Event('input', { bubbles: true })); // autosave picks both changes up
+    from.dispatchEvent(new Event('input', { bubbles: true }));
+    to.classList.add('just-placed');
+    setTimeout(() => to.classList.remove('just-placed'), 900);
+    return true;
+  }
+
+  function setMoving(box) {
+    moving = box;
+    document.body.classList.toggle('moving-slot', !!box);
+    document.querySelectorAll('.slot-move.active').forEach(n => n.classList.remove('active'));
+    if (box) box.closest('.inv-slot').querySelector('.slot-move').classList.add('active');
+  }
+
+  // Dragging the handle (mouse / trackpad)
+  document.addEventListener('dragstart', e => {
+    const handle = e.target.closest && e.target.closest('.slot-move');
+    if (!handle) return;
+    const wrap = handle.closest('.inv-slot');
+    const box = wrap.querySelector('textarea');
+    if (!hasText(box)) { e.preventDefault(); return; } // nothing to move
+    dragFrom = box;
+    e.dataTransfer.setData(MOVE_TYPE, box.id);
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setDragImage(wrap, 24, 16);
+    document.body.classList.add('dragging-slot');
+  });
+  document.addEventListener('dragend', () => {
+    dragFrom = null;
+    document.body.classList.remove('dragging-slot');
+  });
+  document.addEventListener('dragover', e => {
+    if (!dragFrom || !e.dataTransfer.types.includes(MOVE_TYPE) || !canMove(dragFrom, e.target)) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    e.target.classList.add('drop-target');
+  });
+  document.addEventListener('dragleave', e => {
+    if (isSlot(e.target)) e.target.classList.remove('drop-target');
+  });
+  document.addEventListener('drop', e => {
+    if (!dragFrom || !e.dataTransfer.types.includes(MOVE_TYPE) || !canMove(dragFrom, e.target)) return;
+    e.preventDefault();
+    e.target.classList.remove('drop-target');
+    moveContents(dragFrom, e.target);
+  });
+
+  // Clicking the handle, then an empty slot (works on touchscreens, where dragging doesn't)
+  document.addEventListener('click', e => {
+    const handle = e.target.closest && e.target.closest('.slot-move');
+    if (!handle) return;
+    const box = handle.closest('.inv-slot').querySelector('textarea');
+    if (moving === box) { setMoving(null); return; }
+    if (!hasText(box)) return;
+    setPicked(null);
+    setMoving(box);
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && moving) setMoving(null);
+    const handle = e.target.closest && e.target.closest('.slot-move');
+    if (handle && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); handle.click(); }
+  });
+  document.addEventListener('pointerdown', e => {
+    if (!moving) return;
+    if (!moving.isConnected) { setMoving(null); return; } // its slot was rebuilt (e.g. pet Slots changed)
+    if (canMove(moving, e.target)) {
+      e.preventDefault();
+      if (moveContents(moving, e.target)) setMoving(null);
+    }
+  });
+  // Switching pages or opening the tray cancels a pending move
+  document.querySelector('.site-bar').addEventListener('pointerdown', () => { if (moving) setMoving(null); });
 
   function renderAll() {
     if (picked && !findItem(picked)) picked = null;

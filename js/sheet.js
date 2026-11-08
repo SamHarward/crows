@@ -3,7 +3,7 @@
 
   // ── Saved-data format ──
   // Bump EXPORT_VERSION whenever the shape of an export changes.
-  const EXPORT_VERSION = 3;
+  const EXPORT_VERSION = 4;
   // If a field's id ever changes, add 'old-id': 'new-id' here so saves made before the
   // change still land in the right box. Example: { 'inv-bp-1': 'inv-backpack-1' }
   const FIELD_RENAMES = {};
@@ -14,6 +14,13 @@
       if (oldId in entry && !(newId in entry)) entry[newId] = entry[oldId];
       delete entry[oldId];
     });
+    // The crow's two Traits boxes became one: keep any text from the old second box
+    if ('traits-2' in entry) {
+      const first = typeof entry.traits === 'string' ? entry.traits : '';
+      const second = typeof entry['traits-2'] === 'string' ? entry['traits-2'] : '';
+      entry.traits = first.trim() && second.trim() ? first.replace(/\s+$/, '') + '\n\n' + second : first || second;
+      delete entry['traits-2'];
+    }
     return entry;
   }
   function upgradeStore(store) {

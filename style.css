@@ -302,7 +302,7 @@ header.sheet-header {
 .condition-grid .condition-item input[type="checkbox"] { width: 1.15rem; height: 1.15rem; min-width: 1.15rem; }
 .condition-grid .condition-item span { font-size: var(--fs-ui); }
 
-/* Traits: two tall boxes side by side; the card fills whatever width is left in the top row */
+/* Traits: one tall box; the card fills whatever width is left in the top row */
 .traits-card { display: flex; flex-direction: column; }
 .sheet-header .traits-card { flex: 1 1 10rem; min-width: 0; }
 .traits-textarea {
@@ -311,8 +311,6 @@ header.sheet-header {
   padding: 0.6rem 0.7rem;
   line-height: 1.5;
 }
-.traits-split { flex: 1; display: flex; gap: 0.6rem; }
-.traits-split .traits-textarea { flex: 1 1 0; min-width: 0; min-height: 0; }
 
 /* ── Bottom row: [inventory | expertises + npc + boon] ── */
 .page {
@@ -335,21 +333,44 @@ header.sheet-header {
   gap: 0.6rem;
 }
 .inv-slot { display: flex; flex-direction: column; gap: 0.25rem; }
+.inv-slot-head { display: flex; align-items: center; justify-content: space-between; gap: 0.3rem; }
 .inv-slot-label {
   color: var(--c-faint);
   margin-bottom: 0;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
+/* ⠿ handle: drag it (or click it, then click an empty slot) to move the slot's contents */
+.slot-move {
+  flex: none;
+  padding: 0 0.25rem;
+  border-radius: 3px;
+  color: var(--c-faint);
+  font-size: 0.85rem;
+  line-height: 1;
+  cursor: grab;
+  user-select: none;
+  transition: background 0.15s, color 0.15s;
+}
+.slot-move:hover,
+.slot-move:focus-visible { background: var(--c-field); color: var(--c-bright); outline: none; }
+.slot-move:active { cursor: grabbing; }
+.slot-move.active { background: var(--c-field); color: var(--c-wheel-gold); }
+/* An empty slot has nothing to move */
+.inv-slot:has(textarea:placeholder-shown) .slot-move { visibility: hidden; }
 .inv-slot textarea {
   height: 9rem;
   padding: 0.4rem 0.5rem;
   line-height: 1.4;
 }
 
-/* Character inventory grows to match the expertises box: 1 worn row + 4 pack rows share the height */
+/* Character inventory grows to match the expertises box: 1 worn row + 5 pack rows share the height */
 .inventory-section { display: flex; }
 .inventory-section .card { flex: 1; display: flex; flex-direction: column; }
 .inventory-section .worn-grid { flex: 1 1 0; grid-auto-rows: 1fr; }
-.inventory-section .inventory-grid { flex: 4 1 1.8rem; grid-auto-rows: 1fr; } /* basis = its 3 row gaps */
+.inventory-section .inventory-grid { flex: 5 1 2.4rem; grid-auto-rows: 1fr; } /* basis = its 4 row gaps */
 .inventory-section .inv-slot textarea { flex: 1; height: auto; min-height: 9rem; }
 
 /* ── Expertises: two columns of grouped skills, each with Cur + Max ── */
@@ -493,6 +514,10 @@ header.sheet-header {
 body.dragging-item .inv-slot textarea,
 body.placing-item .inv-slot textarea { border-style: dashed; border-color: var(--c-wheel-gold); }
 body.placing-item .inv-slot textarea { cursor: copy; }
+/* …and while a slot's contents are being moved, only the empty slots light up */
+body.dragging-slot .inv-slot textarea:placeholder-shown,
+body.moving-slot .inv-slot textarea:placeholder-shown { border-style: dashed; border-color: var(--c-wheel-gold); }
+body.moving-slot .inv-slot textarea:placeholder-shown { cursor: copy; }
 .inv-slot textarea.drop-target { border-style: solid; background: #33301f; }
 .inv-slot textarea.just-placed { animation: item-placed 0.9s ease-out; }
 @keyframes item-placed {

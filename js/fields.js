@@ -15,6 +15,7 @@
   const PACK = [
     ['inv-hand-1', 'Hand 1'], ['inv-hand-2', 'Hand 2'], null, null, null,
     ['inv-belt-1', 'Belt 1'], ['inv-belt-2', 'Belt 2'], ['inv-belt-3', 'Belt 3'], ['inv-belt-4', 'Belt 4'], null,
+    ['inv-elemental-1', 'Elemental 1'], ['inv-elemental-2', 'Elemental 2'], ['inv-elemental-3', 'Elemental 3'], null, null,
     ['inv-bp-1', 'Backpack 1'], ['inv-bp-2', 'Backpack 2'], ['inv-bp-3', 'Backpack 3'], ['inv-bp-4', 'Backpack 4'], ['inv-bp-5', 'Backpack 5'],
     ['inv-bp-6', 'Backpack 6'], ['inv-bp-7', 'Backpack 7'], ['inv-bp-8', 'Backpack 8'], ['inv-bp-9', 'Backpack 9'], ['inv-bp-10', 'Backpack 10']
   ];
@@ -55,14 +56,24 @@
     return node;
   }
 
-  // One labelled inventory slot (also used by the pet inventory and town storage in sheet.js)
+  // One labelled inventory slot (also used by the pet inventory and town storage in sheet.js).
+  // The ⠿ handle at the top right moves the slot's contents to an empty slot (see js/items.js).
   function slot(id, name) {
     const wrap = el('div', 'inv-slot');
+    const head = el('div', 'inv-slot-head');
     const label = el('label', 'inv-slot-label', name);
     label.htmlFor = id;
+    const handle = el('span', 'slot-move', '⠿');
+    handle.setAttribute('role', 'button');
+    handle.tabIndex = 0;
+    handle.draggable = true;
+    handle.title = 'Move to an empty slot';
+    handle.setAttribute('aria-label', 'Move ' + name + ' to an empty slot');
+    head.append(label, handle);
     const box = el('textarea');
     box.id = id;
-    wrap.append(label, box);
+    box.placeholder = ' '; // lets CSS tell empty slots apart (:placeholder-shown)
+    wrap.append(head, box);
     return wrap;
   }
   function fillSlots(container, list) {
@@ -73,7 +84,6 @@
     const input = el('input');
     input.type = 'number';
     input.id = id;
-    input.min = '0';
     input.placeholder = '—';
     input.setAttribute('aria-label', ariaLabel);
     return input;
